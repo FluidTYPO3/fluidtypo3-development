@@ -1,3 +1,37 @@
 #!/usr/bin/env php
 <?php
 
+$path = dirname($argv[0]) . '/';
+$root = substr($path, 0, -11);
+$root = realpath($root);
+
+$standard = $root . '/vendor/fluidtypo3/coding-standards/ruleset.xml';
+
+$command = './vendor/bin/phpcs -p --extensions=php --ignore=vendor --standard=' . $standard . ' .';
+
+$descriptors = array(
+	array("pipe", "r"),
+	array("pipe", "w"),
+	array("pipe", "r")
+);
+$pipes = array();
+
+$process = proc_open($command, $descriptors, $pipes, $root);
+fclose($pipes[0]);
+
+$errors = FALSE;
+
+while ($char = fread($pipes[1], 8)) {
+	echo $char;
+	$errors = TRUE;
+}
+
+fclose($pipes[1]);
+fclose($pipes[2]);
+
+if (TRUE === $errors) {
+	exit(1);
+} else {
+	echo 'No problems detected by CodeSniffer';
+	echo PHP_EOL;
+}
