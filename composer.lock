@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "297c874d0d8b53f639eda2439ddca1ca",
+    "hash": "4ac40a7bed6875bbe71a0b69dce9526a",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -62,7 +62,7 @@
         },
         {
             "name": "fluidtypo3/coding-standards",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FluidTYPO3/FluidTYPO3-CodingStandards.git",
@@ -1466,7 +1466,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "fluidtypo3/coding-standards": 20,
         "satooshi/php-coveralls": 20
     },
     "prefer-stable": false,
