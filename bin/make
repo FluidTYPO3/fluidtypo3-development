@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Bulk command to perform style validation, unit testing
+ * and git commit validation.
+ */
+
+/**
+ * @param string $message
+ * @param integer $code
+ */
+function exitWithError($message, $code = 1) {
+	echo $message . PHP_EOL;
+	exit($code);
+}
+
+echo 'Starting code checks and tests';
+echo PHP_EOL;
+echo PHP_EOL;
+
+$checkers = array('checkstyle', 'checkcommits', 'runtests');
+$executables = array_merge(array('phpunit', 'phpcs'), $checkers);
+
+// Step 1: determine calling origin:
+// Resolve the path to the ./vendor/bin/ folder that contains other scripts
+$path = dirname($argv[0]) . '/';
+// Validate that this path is correct:
+$standardPathWarning = 'Path "%s" does not appear to contain an executable "phpunit" binary. Please make sure you called the ' .
+	'script using the path ./vendor/bin/make from the root of your project folder';
+
+foreach ($executables as $expectedExecutable) {
+	$executable = $path . $expectedExecutable;
+	if (FALSE === is_executable(realpath($executable))) {
+		exitWithError(sprintf($standardPathWarning, $path, $expectedExecutable), 2);
+	}
+}
+
+// Step 2: execute each of the dedicated checkers:
+foreach ($checkers as $checker) {
+	echo 'Running check: ' . $checker;
+	echo PHP_EOL;
+	$output = array();
+	$code = 0;
+	exec($path . $checker, $output, $code);
+	$string = implode(PHP_EOL, $output);
+	if (0 < $code) {
+		exitWithError($string, $code);
+	}
+	echo $string;
+	echo PHP_EOL;
+}
+
+echo 'All checks and tests completed succesfully!';
+echo PHP_EOL;
+
+exit(0);
