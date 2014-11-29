@@ -14,7 +14,7 @@ function exitWithError($message, $code = 1) {
 	exit($code);
 }
 
-echo 'Starting code checks and tests';
+echo '++ Starting code checks and tests';
 echo PHP_EOL;
 echo PHP_EOL;
 
@@ -37,20 +37,36 @@ foreach ($executables as $expectedExecutable) {
 
 // Step 2: execute each of the dedicated checkers:
 foreach ($checkers as $checker) {
-	echo 'Running check: ' . $checker;
+	echo '++ Running check: ' . $checker;
 	echo PHP_EOL;
-	$output = array();
-	$code = 0;
-	exec($path . $checker, $output, $code);
-	$string = implode(PHP_EOL, $output);
-	if (0 < $code) {
+	echo PHP_EOL;
+
+	$descriptors = array(
+		array("pipe", "r"),
+		array("pipe", "w"),
+		array("pipe", "r")
+	);
+	$pipes = array();
+
+	$process = proc_open($path . $checker, $descriptors, $pipes);
+	fclose($pipes[0]);
+
+	while ($threeChars = fread($pipes[1], 24)) {
+		echo $threeChars;
+	}
+
+	fclose($pipes[1]);
+
+	$errors = stream_get_contents($pipes[2]);
+	fclose($pipes[2]);
+
+	if (FALSE === empty($errors)) {
 		exitWithError($string, $code);
 	}
-	echo $string;
 	echo PHP_EOL;
 }
 
-echo 'All checks and tests completed succesfully!';
+echo '++ All checks and tests completed succesfully!';
 echo PHP_EOL;
 
 exit(0);
