@@ -23,7 +23,7 @@
     },
     "autoload": {
         "classmap": [
-            "vendor/typo3/cms/typo3/sysext"
+            "./vendor/typo3/cms/typo3/sysext"
         ]
     }
 }
