@@ -1,0 +1,18 @@
+{
+    "name": "fluidtypo3/development",
+    "description": "FluidTYPO3 development helpers - test runners, coding standards sniffing, local git hook scripts",
+    "license": "GPLv3",
+    "version": "1.0.0",
+    "keywords": ["php", "git", "fluidtypo3", "typo3", "helper"],
+    "authors": [
+        {
+            "name": "Claus Due",
+            "email": "claus@namelesscoder.net"
+        }
+    ],
+    "require": {
+        "squizlabs/php_codesniffer": "*",
+        "fluidtypo3/codingstandards": "*",
+        "phpunit/phpunit": "4.3.*"
+    }
+}
