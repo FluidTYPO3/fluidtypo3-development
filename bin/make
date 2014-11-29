@@ -10,7 +10,11 @@
  * @param integer $code
  */
 function exitWithError($message, $code = 1) {
-	echo $message . PHP_EOL;
+	echo '!! ERROR !!';
+	echo PHP_EOL;
+	echo PHP_EOL;
+	echo $message;
+	echo PHP_EOL;
 	exit($code);
 }
 
@@ -61,7 +65,7 @@ foreach ($checkers as $checker) {
 	fclose($pipes[2]);
 
 	if (FALSE === empty($errors)) {
-		exitWithError($string, $code);
+		exitWithError($errors);
 	}
 	echo PHP_EOL;
 }
