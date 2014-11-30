@@ -5,7 +5,7 @@ $path = dirname($argv[0]) . '/';
 $root = substr($path, 0, -11);
 $root = realpath($root);
 
-$command = 'git log --oneline --no-merges -n 100';
+$command = 'git log --oneline --no-merges -n 50';
 
 $output = shell_exec($command);
 
@@ -32,7 +32,6 @@ foreach (explode(PHP_EOL, trim($output)) as $commitLine) {
 	} else {
 		echo '.';
 	}
-	usleep(10000);
 }
 
 if (TRUE === $errors) {
