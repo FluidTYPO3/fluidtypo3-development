@@ -25,5 +25,13 @@ while ($char = fread($pipes[1], 8)) {
 	echo $char;
 }
 
+$errors = stream_get_contents($pipes[2]);
 fclose($pipes[1]);
 fclose($pipes[2]);
+
+$exit = proc_close($process);
+if (0 < $exit) {
+	echo $errors;
+	echo PHP_EOL;
+}
+exit($exit);
