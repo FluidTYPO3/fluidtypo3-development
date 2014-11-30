@@ -22,7 +22,7 @@ Usage instructions
 To use `fluidtypo3-development` you must add it as a composer dependency:
 
 ```bash
-composer require fluidtypo3-development:*
+composer require fluidtypo3/development:*
 ```
 
 After this, run the assistant script once in order to confirm a working setup:
