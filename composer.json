@@ -19,5 +19,14 @@
     },
     "replace": {
         "typo3/cms-composer-installers": "*"
+    },
+    "bin": [
+        "checkcommits",
+        "checkstyle",
+        "runtests",
+        "make"
+    ],
+    "config": {
+        "bin-dir": "bin"
     }
 }
