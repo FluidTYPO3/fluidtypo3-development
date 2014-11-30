@@ -1,3 +1,49 @@
 #!/usr/bin/env php
 <?php
 
+$path = dirname($argv[0]) . '/';
+$root = substr($path, 0, -11);
+$root = realpath($root);
+
+$command = 'git log --oneline --no-merges -n 100';
+
+$output = shell_exec($command);
+
+$prefixes = array('[TER]', '[TASK]', '[DOC]', '[BUGFIX]', '[FEATURE]', '[REMOVAL]');
+
+$errors = FALSE;
+$messages = array();
+
+foreach (explode(PHP_EOL, trim($output)) as $commitLine) {
+	list ($sha1, $prefix, $message) = explode(' ', $commitLine, 3);
+	if (FALSE === in_array($prefix, $prefixes)) {
+		$errors = TRUE;
+		$messages[] = 'Commit: ' . $commitLine;
+		$messages[] = 'We detected "' . $prefix . '" used as prefix which is not valid.';
+		$messages[] = 'Subject must use one of valid prefixes ' . implode(', ', $prefixes);
+		$messages[] = PHP_EOL;
+		echo 'E';
+	} elseif ($message{0} !== mb_strtoupper($message{0})) {
+		$errors = TRUE;
+		$messages[] = 'Commit: ' . $commitLine;
+		$messages[] = 'Subject text after prefix must start with an uppercase letter but we detected a lowercase letter';
+		$messages[] = PHP_EOL;
+		echo 'E';
+	} else {
+		echo '.';
+	}
+	usleep(10000);
+}
+
+if (TRUE === $errors) {
+	echo PHP_EOL;
+	echo PHP_EOL;
+	echo 'One or more commits\' subjects contains errors - please amend.';
+	echo PHP_EOL;
+	echo PHP_EOL;
+	echo implode(PHP_EOL, $messages);
+	echo PHP_EOL;
+	exit(1);
+}
+
+echo PHP_EOL;
