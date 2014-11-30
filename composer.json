@@ -21,10 +21,10 @@
         "typo3/cms-composer-installers": "*"
     },
     "bin": [
-        "checkcommits",
-        "checkstyle",
-        "runtests",
-        "make"
+        "bin/checkcommits",
+        "bin/checkstyle",
+        "bin/runtests",
+        "bin/make"
     ],
     "config": {
         "bin-dir": "bin"
