@@ -48,5 +48,5 @@ Outputs
 
 After tests have been executed you will find a Clover format code coverage log in the `build/logs/` folder - you can load this
 file into an IDE like PHPStorm in order to highlight covered/uncovered lines, and you can run `./vendor/bin/coveralls` without
-additional arguments to upload the coverage data to `https://coveralls.io` (note that Coveralls uses a repository token which
+additional arguments to upload the coverage data to https://coveralls.io (note that Coveralls uses a repository token which
 must either be exported as an ENV variable or configured in a `.coveralls.yml` file - see Coveralls documentation).
