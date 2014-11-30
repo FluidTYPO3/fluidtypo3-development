@@ -32,7 +32,8 @@ After this, run the assistant script once in order to confirm a working setup:
 ```
 
 This will validate commits in history, perform code style validations and execute tests. It will also prepare your local Git
-repository with a so-called `post-commit` hook script which will run the assistant script every time you make a new commit in Git.
+repository with a so-called `post-commit` hook script which will run the assistant script every time you make a new commit in Git,
+ensuring that you do not commit code that violates the style guidelines or break tests.
 
 You can also run the individual assistant scripts:
 
