@@ -18,17 +18,18 @@ function exitWithError($message, $code = 1) {
 	exit($code);
 }
 
-echo '++ Starting code checks and tests';
-echo PHP_EOL;
 echo PHP_EOL;
 
-$checkers = array('checkstyle', 'checkcommits', 'runtests');
+$checkers = array('checkcommits', 'checkstyle', 'runtests');
 $executables = array_merge(array('phpunit', 'phpcs'), $checkers);
 
 // Step 1: determine calling origin:
-// Resolve the path to the ./vendor/bin/ folder that contains other scripts
+// Resolve the path to the ./vendor/bin/ folder that contains other scripts:
 $path = dirname($argv[0]) . '/';
-// Validate that this path is correct:
+$root = substr($path, 0, -11);
+$root = realpath($root);
+
+// Step 2: Validate that this path is correct:
 $standardPathWarning = 'Path "%s" does not appear to contain an executable "phpunit" binary. Please make sure you called the ' .
 	'script using the path ./vendor/bin/make from the root of your project folder';
 
@@ -39,9 +40,17 @@ foreach ($executables as $expectedExecutable) {
 	}
 }
 
-// Step 2: execute each of the dedicated checkers:
+// Step 3: check that the git post-commit hook is in place, if not, create it:
+
+$postCommitScript = $root . '/.git/hooks/post-commit';
+if (FALSE === file_exists($postCommitScript)) {
+	file_put_contents($postCommitScript, '#!/bin/sh' . PHP_EOL . './vendor/bin/make');
+	chmod($postCommitScript, 0755);
+}
+
+// Step 4: execute each of the dedicated checkers:
 foreach ($checkers as $checker) {
-	echo '++ Running check: ' . $checker;
+	echo '++ Running: ' . $checker;
 	echo PHP_EOL;
 	echo PHP_EOL;
 
@@ -64,8 +73,10 @@ foreach ($checkers as $checker) {
 	$errors = stream_get_contents($pipes[2]);
 	fclose($pipes[2]);
 
-	if (FALSE === empty($errors)) {
-		exitWithError($errors);
+	$exit = proc_close($process);
+
+	if (0 < $exit) {
+		exitWithError($errors, $exit);
 	}
 	echo PHP_EOL;
 }
