@@ -4,12 +4,15 @@
 $path = dirname($argv[0]) . '/';
 $root = substr($path, 0, -11);
 $root = realpath($root);
-$logDir = $root . 'build/logs/';
+$phpunit = './vendor/bin/phpunit -v --strict -c phpunit.xml.dist';
 
-if (FALSE === is_dir($logDir)) {
-	mkdir($logDir, 0755, TRUE);
+if (TRUE === extension_loaded('Xdebug')) {
+	$phpunit .= ' --coverage-clover=build/logs/clover.xml';
+	$logDir = $root . 'build/logs/';
+	if (FALSE === is_dir($logDir)) {
+		mkdir($logDir, 0755, TRUE);
+	}
 }
-$phpunit = './vendor/bin/phpunit --strict -c phpunit.xml.dist --coverage-clover=build/logs/clover.xml -v';
 
 $descriptors = array(
 	array("pipe", "r"),
