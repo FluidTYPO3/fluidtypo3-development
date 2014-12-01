@@ -3,6 +3,8 @@ FluidTYPO3 Development Assistant
 
 > Test runners, coding standards sniffing, local git hook scripts
 
+[![Total Downloads](https://img.shields.io/packagist/dt/FluidTYPO3/development.svg?style=flat-square)](https://packagist.org/packages/FluidTYPO3/development)
+
 This package defines dependencies and contains wrapper scripts for easy validations of Fluid Powered TYPO3 project repositories
 conforming to the coding style and contribution guidelines. The provided `./vendor/bin/make` script can be used for local
 testing and will install itself as a git `post-commit` hook that executes after commits are made.
