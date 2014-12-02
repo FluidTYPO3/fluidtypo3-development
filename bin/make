@@ -51,7 +51,7 @@ chmod($preCommitScript, 0755);
 $messageScript = $root . '/.git/hooks/commit-msg';
 file_put_contents($messageScript, file_get_contents($root . '/vendor/fluidtypo3/development/hooks/commit-msg'));
 chmod($messageScript, 0755);
-$prepareScript = $root . '/.git/hooks/commit-msg';
+$prepareScript = $root . '/.git/hooks/prepare-commit-msg';
 file_put_contents($prepareScript, file_get_contents($root . '/vendor/fluidtypo3/development/hooks/prepare-commit-msg'));
 chmod($prepareScript, 0755);
 
