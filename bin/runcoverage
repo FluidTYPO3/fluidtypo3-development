@@ -6,6 +6,14 @@ $root = substr($path, 0, -11);
 $root = realpath($root);
 $phpunit = './vendor/bin/phpunit -v --strict -c phpunit.xml.dist';
 
+if (TRUE === extension_loaded('Xdebug')) {
+	$phpunit .= ' --coverage-clover=build/logs/clover.xml';
+	$logDir = $root . 'build/logs/';
+	if (FALSE === is_dir($logDir)) {
+		mkdir($logDir, 0755, TRUE);
+	}
+}
+
 $descriptors = array(
 	array("pipe", "r"),
 	array("pipe", "w"),

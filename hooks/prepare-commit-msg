@@ -1,0 +1,49 @@
+#!/usr/bin/env php
+<?php
+
+
+$message = <<< MESSAGE
+[PREFIX] Subject
+
+Description
+
+# IMPORTANT - PLEASE READ!
+#
+# Instructions:
+#
+# Your commit message is important. We use it when filling change logs
+# and advertising new features and bugs which have been fixed. This is
+# why we require a certain format for your message. The placeholder text
+# in the example above must be adjusted to describe a few key aspects
+# of your change:
+#
+# - The change type; one of [TER], [TASK], [DOC], [BUGFIX] or [FEATURE]
+#
+# - The change performed described with a few words only (a subject).
+#   For consistency, the subject *must* start with an uppercase letter.
+#
+# - A more thorough description of the changes that were made and in
+#   particular, the reason for making them (fixing a problem, adding a
+#   new feature, changing a current behaviour, etc.)
+#
+# The following is an example of an ideal commit message:
+#
+# ---------------------------------------------------------------------
+#
+# [BUGFIX] Fixed incorrect use of variable foobar in class BazFoo
+#
+# The variable "foobar" in class BazFoo was being used incorrectly,
+# resulting in unexpected behavior when doing xyz-action.
+#
+# Changed variable usage to correct form.
+#
+# ---------------------------------------------------------------------
+#
+# Thank you in advance for properly declaring your commits!
+#
+# - The FluidTYPO3 team
+#
+MESSAGE;
+
+file_put_contents($argv[1], $message);
+
