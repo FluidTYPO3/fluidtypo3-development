@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @param string $command
+ * @param boolean $expectsEmptyOutput
+ * @return array
+ */
+function commandOrFail($command, $expectsEmptyOutput = FALSE) {
+	$code = 0;
+	$output = array();
+	exec($command, $output, $code);
+	if (0 < $code || (TRUE === $expectsEmptyOutput && 0 < count($output))) {
+		$message = 'Command failed! ' . $command;
+		if (TRUE === $expectsEmptyOutput) {
+			$message .= PHP_EOL;
+			$message .= 'No output was expected from command but output occurred:';
+			$message .= implode(PHP_EOL, $output);
+		}
+		exitWithMessage($message, (TRUE === $expectsEmptyOutput && 0 === $code) ? 1 : $code);
+	}
+	return $output;
+}
+
+/**
+ * @param string $message
+ * @param integer $code
+ * @return void
+ */
+function exitWithMessage($message, $code = 0) {
+	echo $message;
+	echo PHP_EOL;
+	exit($code);
+}
+
+/**
+ * @param string $message
+ * @return void
+ */
+function message($message) {
+	echo '* ' . $message;
+	echo PHP_EOL;
+}
+
+// Step 1: Confirm a clean working directory or fail.
+commandOrFail('git status -s', TRUE);
+message('Working directory is clean!');
+
+// Step 2: Confirm differences exists between `development` and `staging` branches or fail w/ suggestion to do `release` next.
+$diff = commandOrFail('git diff development staging');
+if (0 === count($diff)) {
+	exitWithMessage('The development and staging branches are the same - nothing to do. Did you mean "release" instead of "stage"?');
+}
+message('Development and staging branches are different, good!');
+
+// Step 3: Check out `staging` branch or fail.
+commandOrFail('git checkout staging -q');
+message('Branch "staging" was checked out');
+
+// Step 4: Merge branch `development` into `staging` and force-generate a merge commit or fail on conflicts.
+commandOrFail('git merge development --no-ff -s recursive -X theirs');
+message('Branch "development" was merged into "staging" with no fast forwarding using "recursive" strategy favoring "their" branch');
+
+// Step 5: Push the result directly to upstream repository
+$repository = pathinfo(trim(shell_exec('pwd')), PATHINFO_FILENAME);
+$repositoryAddress = sprintf('git push https://github.com/FluidTYPO3/%s.git staging -q', $repository);
+commandOrFail($repositoryAddress);
+commandOrFail('git fetch origin -q');
+message('The merged "staging" branch was pushed to ' . $repositoryAddress);
+
+// Step 6: Check out development again
+commandOrFail('git checkout development -q');
+message('You are now back on branch "development"');
+
+// Step 7: Report success
+message('The repository was staged! If your branch tracks a remote other than upstream you may need to manually sync it.');
