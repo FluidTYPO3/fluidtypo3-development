@@ -1,2 +1,5 @@
 vendor
 .idea
+bin/rmversion
+bin/setversion
+bin/upload

@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "779db58acffeb4802dc4d284f722ae7d",
+    "hash": "69f70819599e25fffee1b31ddaeaa3ad",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -211,16 +211,16 @@
         },
         {
             "name": "namelesscoder/typo3-repository-client",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NamelessCoder/typo3-repository-client.git",
-                "reference": "46a9905a363b8e310b93afd4ddbb98104e6e7d8b"
+                "reference": "65f5827b73ea5a82b0a7c306c5a0dda5095a0e31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NamelessCoder/typo3-repository-client/zipball/46a9905a363b8e310b93afd4ddbb98104e6e7d8b",
-                "reference": "46a9905a363b8e310b93afd4ddbb98104e6e7d8b",
+                "url": "https://api.github.com/repos/NamelessCoder/typo3-repository-client/zipball/65f5827b73ea5a82b0a7c306c5a0dda5095a0e31",
+                "reference": "65f5827b73ea5a82b0a7c306c5a0dda5095a0e31",
                 "shasum": ""
             },
             "require-dev": {
@@ -252,7 +252,7 @@
                 }
             ],
             "description": "Client for interacting with the official TYPO3 Extension Repository (TER). Contains API and CLI scripts.",
-            "time": "2014-12-08 00:20:58"
+            "time": "2014-12-08 00:41:33"
         },
         {
             "name": "phpunit/php-code-coverage",
