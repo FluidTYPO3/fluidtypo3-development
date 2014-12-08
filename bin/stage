@@ -11,10 +11,10 @@ function commandOrFail($command, $expectsEmptyOutput = FALSE) {
 	$output = array();
 	exec($command, $output, $code);
 	if (0 < $code || (TRUE === $expectsEmptyOutput && 0 < count($output))) {
-		$message = '[!] Command failed! ' . $command;
+		$message = ' ! Command failed! ' . $command;
 		if (TRUE === $expectsEmptyOutput) {
 			$message .= PHP_EOL;
-			$message .= '[!] No output was expected from command but output occurred:';
+			$message .= ' ! No output was expected from command but output occurred:';
 			$message .= implode(PHP_EOL, $output);
 		}
 		exitWithMessage($message, (TRUE === $expectsEmptyOutput && 0 === $code) ? 1 : $code);
@@ -38,7 +38,7 @@ function exitWithMessage($message, $code = 0) {
  * @return void
  */
 function message($message, $mark = '✓') {
-	echo sprintf('[%s] ' . $message, $mark);
+	echo sprintf(' %s ' . $message, $mark);
 	echo PHP_EOL;
 }
 
@@ -48,7 +48,7 @@ $repositoryAddress = sprintf('https://github.com/FluidTYPO3/%s.git', $repository
 $delay = 10;
 
 message('Starting staging of ' . $repository, '·');
-echo '[·] ' . sprintf('Delaying for %s seconds. If you wish to abort, NOW is the time to press CTRL+C: ', $delay);
+echo ' · ' . sprintf('Delaying for %s seconds. If you wish to abort, NOW is the time to press CTRL+C: ', $delay);
 while (0 < $delay && -- $delay) {
 	echo $delay . '..';
 	sleep(1);
@@ -61,6 +61,7 @@ commandOrFail('git status -s', TRUE);
 message('Working directory is clean!');
 
 // Step 2: Checkout staging and development and pull changes
+message('Pulling development and staging branches from ' . $repository, '·');
 commandOrFail('git checkout staging -q', TRUE);
 commandOrFail('git pull ' . $repositoryAddress . ' staging -q');
 commandOrFail('git checkout development -q', TRUE);
@@ -70,7 +71,7 @@ message('Development and staging branches pulled');
 // Step 3: Confirm differences exists between `development` and `staging` branches or fail w/ suggestion to do `release` next.
 $diff = commandOrFail('git diff development staging');
 if (0 === count($diff)) {
-	exitWithMessage('[!] Branches development and staging are identical - nothing to do. Did you want to release instead of stage?');
+	exitWithMessage(' x Branches development and staging are identical - nothing to do. Did you want to release instead of stage?', 1);
 }
 message('Development and staging branches are different, good!');
 
