@@ -3,7 +3,7 @@
 
 $commit = file_get_contents($argv[1]);
 $commit = FALSE !== strpos($commit, PHP_EOL) ? substr($commit, 0, strpos($commit, PHP_EOL)) : $commit;
-$prefixes = array('[TER]', '[TASK]', '[DOC]', '[BUGFIX]', '[FEATURE]', '[REMOVAL]');
+$prefixes = array('[TER]', '[TASK]', '[DOC]', '[BUGFIX]', '[FEATURE]', '[REMOVAL]', 'Merge');
 
 $errors = FALSE;
 $messages = array();
@@ -20,7 +20,7 @@ if (FALSE === in_array($prefix, $prefixes)) {
 	$errors = TRUE;
 	$messages[] = 'We detected "' . $prefix . '" used as prefix which is not valid.';
 	$messages[] = 'Subject must use one of valid prefixes ' . implode(', ', $prefixes);
-} elseif ($message{0} !== mb_strtoupper($message{0})) {
+} elseif ($message{0} !== mb_strtoupper($message{0}) && 'Merge' !== $prefix) {
 	$errors = TRUE;
 	$messages[] = 'Subject text after prefix must start with an uppercase letter but we detected a lowercase letter';
 }
