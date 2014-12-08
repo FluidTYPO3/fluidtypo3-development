@@ -9,7 +9,13 @@ This package defines dependencies and contains wrapper scripts for easy validati
 conforming to the coding style and contribution guidelines. The provided `./vendor/bin/make` script can be used for local
 testing and will install itself as a git `post-commit` hook that executes after commits are made.
 
-The same script can be used from a continuous integration context.
+The same scripts can be used from a continuous integration context.
+
+To use `fluidtypo3-development` you must add it as a composer dependency:
+
+```bash
+composer require fluidtypo3/development:*
+```
 
 Requirements
 ------------
@@ -38,13 +44,7 @@ e.g. `./vendor/bin/phpunit -h`.
 Usage instructions: testing and validation
 ------------------------------------------
 
-To use `fluidtypo3-development` you must add it as a composer dependency:
-
-```bash
-composer require fluidtypo3/development:*
-```
-
-After this, run the assistant script once in order to confirm a working setup:
+To run all tests and ensure that git all hooks are up-to-date:
 
 ```bash
 ./vendor/bin/make
