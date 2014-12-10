@@ -69,7 +69,7 @@ commandOrFail('git pull ' . $repositoryAddress . ' development -q');
 message('Development and staging branches pulled');
 
 // Step 3: Confirm differences exists between `development` and `staging` branches or fail w/ suggestion to do `release` next.
-$diff = commandOrFail('git diff development staging');
+$diff = commandOrFail('git diff staging...development');
 if (0 === count($diff)) {
 	exitWithMessage(' x Branches development and staging are identical - nothing to do. Did you want to release instead of stage?', 1);
 }
