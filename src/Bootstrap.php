@@ -42,9 +42,7 @@ class Bootstrap {
 	 * @return Bootstrap
 	 */
 	public static function getInstance() {
-		$container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
 		$object = new self();
-		$object->setObjectContainer($container);
 		return $object;
 	}
 
@@ -79,6 +77,8 @@ class Bootstrap {
 			->initializeClassLoader()
 			->initializeCachingFramework()
 			->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager');
+		$container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
+		$this->setObjectContainer($container);
 		return $this;
 	}
 
