@@ -80,11 +80,11 @@ commandOrFail('git checkout staging -q');
 message('Branch "staging" was checked out');
 
 // Step 5: Merge branch `development` into `staging` and force-generate a merge commit or fail on conflicts.
-commandOrFail('git merge development --no-ff -s recursive -X theirs');
+commandOrFail('git merge --no-ff -s recursive -X theirs development');
 message('Branch "development" was merged into "staging" with no fast forwarding using "recursive" strategy favoring "their" branch');
 
 // Step 6: Push the result directly to upstream repository
-commandOrFail('git push ' . $repositoryAddress . ' staging -1');
+commandOrFail('git push ' . $repositoryAddress . ' staging -q');
 commandOrFail('git fetch origin -q');
 message('The merged "staging" branch was pushed to ' . $repositoryAddress);
 
