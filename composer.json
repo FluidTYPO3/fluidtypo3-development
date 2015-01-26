@@ -11,7 +11,9 @@
         }
     ],
     "autoload": {
-        "FluidTYPO3\\Development\\": "src/"
+        "psr-4": {
+            "FluidTYPO3\\Development\\": "src/"
+        }
     },
     "require": {
         "typo3/cms": "6.2.7",
