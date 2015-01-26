@@ -3,3 +3,6 @@ vendor
 bin/rmversion
 bin/setversion
 bin/upload
+bin/phpcbf
+bin/phpcs
+bin/release.php
