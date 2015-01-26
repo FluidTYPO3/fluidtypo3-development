@@ -9,7 +9,7 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 /**
  * Class DummyConfigurationManager
  */
-class DummyConfigurationManager extends BackendConfigurationManager implements ConfigurationManagerInterface {
+class NullConfigurationManager extends BackendConfigurationManager implements ConfigurationManagerInterface {
 
 	/**
 	 * @param string $type

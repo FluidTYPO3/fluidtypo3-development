@@ -47,10 +47,10 @@ class Bootstrap {
 	}
 
 	/**
-	 * @param ObjectContainer $container
+	 * @param Container $container
 	 * @return $this
 	 */
-	public function setObjectContainer(ObjectContainer $container) {
+	public function setObjectContainer(Container $container) {
 		$this->objectContainer = $container;
 		return $this;
 	}
@@ -120,15 +120,15 @@ class Bootstrap {
 	public function initializeReplacementImplementations() {
 		$this->objectContainer->registerImplementation(
 			'TYPO3\\CMS\\Extbase\\Configuration\\ConfigurationManagerInterface',
-			'FluidTYPO3\\Development\\DummyConfigurationManager'
+			'FluidTYPO3\\Development\\NullConfigurationManager'
 		);
 		$this->objectContainer->registerImplementation(
 			'TYPO3\\CMS\\Extbase\\Persistence\\PersistenceManagerInterface',
-			'FluidTYPO3\\Vhs\\Tests\\Fixtures\\Classes\\DummyPersistenceManager'
+			'FluidTYPO3\\Development\\NullPersistenceManager'
 		);
 		$this->objectContainer->registerImplementation(
 			'TYPO3\\CMS\\Extbase\\Persistence\\Generic\\BackendInterface',
-			'FluidTYPO3\\Development\\DummyPersistenceBackend'
+			'FluidTYPO3\\Development\\NullPersistenceBackend'
 		);
 		$this->objectContainer->registerImplementation(
 			'TYPO3\\CMS\\Extbase\\Persistence\\QueryInterface',
