@@ -37,7 +37,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return boolean
 	 */
 	public function isPackageActive($packageKey) {
-		return ('vhs' === $packageKey);
+		return ($this->getCurrentPackageKey() === $packageKey);
 	}
 
 	/**
@@ -45,7 +45,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return boolean
 	 */
 	public function isPackageAvailable($packageKey) {
-		return ('vhs' === $packageKey);
+		return ($this->getCurrentPackageKey() === $packageKey);
 	}
 
 	/**
@@ -53,9 +53,16 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return PackageInterface
 	 */
 	public function getPackage($packageKey) {
-		$path = realpath(dirname(__FILE__) . '/../../..') . '/';
+		$path = realpath(dirname(__FILE__) . '/../../../../') . '/';
 		$package = new Package($this, $packageKey, $path, $path . 'Classes/');
 		return $package;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCurrentPackageKey() {
+		return pathinfo(realpath(__DIR__ . '/../../../../'), PATHINFO_BASENAME);
 	}
 
 }
