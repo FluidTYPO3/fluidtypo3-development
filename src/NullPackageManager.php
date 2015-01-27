@@ -37,7 +37,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return boolean
 	 */
 	public function isPackageActive($packageKey) {
-		return ($this->getCurrentPackageKey() === $packageKey);
+		return in_array($packageKey, $this->getLoadedPackageKeys());
 	}
 
 	/**
@@ -45,7 +45,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return boolean
 	 */
 	public function isPackageAvailable($packageKey) {
-		return ($this->getCurrentPackageKey() === $packageKey);
+		return in_array($packageKey, $this->getLoadedPackageKeys());
 	}
 
 	/**
@@ -59,10 +59,25 @@ class NullPackageManager extends FailsafePackageManager {
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	protected function getCurrentPackageKey() {
-		return pathinfo(realpath(__DIR__ . '/../../../../'), PATHINFO_BASENAME);
+	protected function getLoadedPackageKeys() {
+		$root = realpath(__DIR__ . '/../../../../');
+		$composerFile = $root . '/composer.json';
+		$parsed = json_decode(file_get_contents($composerFile), JSON_OBJECT_AS_ARRAY);
+		$key = substr($parsed['name'], strpos($parsed['name'], '/') + 1);
+		$loaded = array($key);
+		if (TRUE === isset($parsed['require-dev'])) {
+			foreach (array_keys($parsed['require-dev']) as $packageName) {
+				$loaded[] = substr($packageName, strpos($packageName, '/') + 1);
+			}
+		}
+		if (TRUE === isset($parsed['require'])) {
+			foreach (array_keys($parsed['require']) as $packageName) {
+				$loaded[] = substr($packageName, strpos($packageName, '/') + 1);
+			}
+		}
+		return $loaded;
 	}
 
 }
