@@ -8,7 +8,7 @@ $phpunit = './vendor/bin/phpunit -v --strict -c phpunit.xml.dist';
 
 if (TRUE === extension_loaded('Xdebug')) {
 	$phpunit .= ' --coverage-clover=build/logs/clover.xml';
-	$logDir = $root . 'build/logs/';
+	$logDir = $root . '/build/logs/';
 	if (FALSE === is_dir($logDir)) {
 		mkdir($logDir, 0755, TRUE);
 	}
