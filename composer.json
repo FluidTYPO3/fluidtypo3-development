@@ -16,7 +16,7 @@
         }
     },
     "require": {
-        "typo3/cms": "6.2.9",
+        "typo3/cms": "6.2.*",
         "squizlabs/php_codesniffer": "*",
         "fluidtypo3/coding-standards": "*",
         "phpunit/phpunit": "4.3.*",
@@ -38,15 +38,8 @@
     },
     "repositories": [
         {
-            "type": "package",
-            "package": {
-                "name": "typo3/cms",
-                "version": "6.2.9",
-                "dist": {
-                    "url": "https://github.com/TYPO3/TYPO3.CMS/archive/6.2.9.zip",
-                    "type": "zip"
-                }
-            }
+            "type": "vcs",
+            "url": "https://github.com/TYPO3/TYPO3.CMS"
         }
     ]
 }
