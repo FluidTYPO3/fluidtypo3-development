@@ -15,4 +15,19 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
  */
 class NullPersistenceManager extends PersistenceManager {
 
+	/**
+	 * @return void
+	 */
+	public function __construct() {
+		$this->backend = new NullPersistenceBackend();
+		parent::__construct();
+	}
+
+	/**
+	 * @return BackendInterface
+	 */
+	public function getBackend() {
+		return $this->backend;
+	}
+
 }
