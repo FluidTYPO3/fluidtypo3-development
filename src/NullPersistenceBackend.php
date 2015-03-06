@@ -24,4 +24,12 @@ class NullPersistenceBackend extends Typo3DbBackend {
 
 	}
 
+	/**
+	 * @param object $object
+	 * @return string
+	 */
+	public function getIdentifierByObject($object) {
+		return spl_object_hash($object);
+	}
+
 }
