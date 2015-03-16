@@ -135,6 +135,10 @@ class Bootstrap {
 			'TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Query'
 		);
 		$this->objectContainer->registerImplementation(
+			'TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface',
+			'TYPO3\\CMS\\Extbase\\Persistence\\Generic\\QueryResult'
+		);
+		$this->objectContainer->registerImplementation(
 			'TYPO3\\CMS\\Extbase\\Persistence\\Generic\\QuerySettingsInterface',
 			'TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings'
 		);
