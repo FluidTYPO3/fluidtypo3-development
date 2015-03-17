@@ -53,9 +53,9 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return PackageInterface
 	 */
 	public function getPackage($packageKey) {
-		$path = realpath(dirname(__FILE__) . '/../../../../') . '/';
+		$path = realpath(dirname(__FILE__) . '/../../' . $packageKey) . '/';
 		if (FALSE === file_exists($path . 'ext_emconf.php')) {
-			$path = realpath(dirname(__FILE__) . '/../../' . $packageKey) . '/';
+			$path = realpath(dirname(__FILE__) . '/../../../../') . '/';
 		}
 		$package = new Package($this, $packageKey, $path, $path . 'Classes/');
 		return $package;
