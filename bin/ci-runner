@@ -41,7 +41,7 @@ function runCommand($command) {
         if (0 < $exit) {
                 echo $errors;
                 echo PHP_EOL;
+		exit($exit);
         }
 }
-exit($exit);
 
