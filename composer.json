@@ -31,7 +31,8 @@
         "bin/checkstyle",
         "bin/runtests",
         "bin/runcoverage",
-        "bin/make"
+        "bin/make",
+        "bin/ci-runner"
     ],
     "config": {
         "bin-dir": "bin"
