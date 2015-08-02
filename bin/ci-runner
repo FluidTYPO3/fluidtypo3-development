@@ -7,13 +7,13 @@ if ('YES' === getenv('CHECKSTYLE')) {
 
 if ('YES' === getenv('COVERAGE')) {
         runCommand('./vendor/bin/runcoverage');
-        runCommand('ln -s Classes src');
-        runCommand('./vendor/bin/coveralls');
+        runCommand('ln -s Classes src', FALSE);
+        runCommand('./vendor/bin/coveralls', FALSE);
 } else {
         runCommand('./vendor/bin/runtests');
 }
 
-function runCommand($command) {
+function runCommand($command, $exitOnError = TRUE) {
         global $argv;
         $path = dirname($argv[0]) . '/';
         $root = substr($path, 0, -11);
@@ -38,7 +38,7 @@ function runCommand($command) {
         fclose($pipes[2]);
 
         $exit = proc_close($process);
-        if (0 < $exit) {
+        if (0 < $exit && $exitOnError) {
                 echo $errors;
                 echo PHP_EOL;
 		exit($exit);
