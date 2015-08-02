@@ -16,7 +16,7 @@
         }
     },
     "require": {
-        "typo3/cms": "7.2.*",
+        "typo3/cms": "6.2.*",
         "squizlabs/php_codesniffer": "*",
         "fluidtypo3/coding-standards": "*",
         "phpunit/phpunit": "4.3.*",
