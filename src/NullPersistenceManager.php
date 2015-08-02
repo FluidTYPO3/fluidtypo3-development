@@ -8,15 +8,15 @@ namespace FluidTYPO3\Development;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Extbase\Persistence\Generic\BackendInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class NullPersistenceManager
  */
 class NullPersistenceManager extends PersistenceManager {
-
 	/**
-	 * @return void
+	 * Create new instance
 	 */
 	public function __construct() {
 		$this->backend = new NullPersistenceBackend();

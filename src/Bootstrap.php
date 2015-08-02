@@ -77,6 +77,7 @@ class Bootstrap {
 			->initializeClassLoader()
 			->initializeCachingFramework()
 			->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager');
+		/** @var Container $container */
 		$container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
 		$this->setObjectContainer($container);
 		return $this;

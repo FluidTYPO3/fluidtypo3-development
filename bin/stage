@@ -35,7 +35,7 @@ function exitWithMessage($message, $code = 0) {
 
 /**
  * @param string $message
- * @return void
+ * @param string $mark
  */
 function message($message, $mark = '✓') {
 	echo sprintf(' %s ' . $message, $mark);
