@@ -13,6 +13,10 @@ if ('YES' === getenv('COVERAGE')) {
         runCommand('./vendor/bin/runtests');
 }
 
+/**
+ * @param $command
+ * @param bool|TRUE $exitOnError
+ */
 function runCommand($command, $exitOnError = TRUE) {
         global $argv;
         $path = dirname($argv[0]) . '/';
