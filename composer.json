@@ -26,8 +26,7 @@
         "johnkary/phpunit-speedtrap": "~1.0@dev"
     },
     "replace": {
-        "typo3/cms-composer-installers": "*",
-        "helhum/class-alias-loader": "*"
+        "typo3/cms-composer-installers": "*"
     },
     "bin": [
         "bin/checkstyle",
