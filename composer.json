@@ -22,7 +22,8 @@
         "phpunit/phpunit": "4.3.*",
         "mikey179/vfsStream": "~1.3.0",
         "satooshi/php-coveralls": "*",
-        "namelesscoder/typo3-repository-client": "*"
+        "namelesscoder/typo3-repository-client": "*",
+        "johnkary/phpunit-speedtrap": "~1.0@dev"
     },
     "replace": {
         "typo3/cms-composer-installers": "*"

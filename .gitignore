@@ -8,3 +8,4 @@ bin/phpcs
 bin/release.php
 bin/coveralls
 bin/phpunit
+composer.lock
