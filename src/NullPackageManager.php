@@ -10,7 +10,7 @@ namespace FluidTYPO3\Development;
 
 use TYPO3\CMS\Core\Package\FailsafePackageManager;
 use TYPO3\CMS\Core\Package\Package;
-use TYPO3\Flow\Core\Bootstrap as FlowBootstrap;
+use TYPO3\CMS\Core\Core\Bootstrap as CoreBootstrap;
 use TYPO3\Flow\Package\PackageInterface;
 
 /**
@@ -26,9 +26,9 @@ class NullPackageManager extends FailsafePackageManager {
 	);
 
 	/**
-	 * @param FlowBootstrap $bootstrap
+	 * @param CoreBootstrap $bootstrap
 	 */
-	public function initialize(FlowBootstrap $bootstrap) {
+	public function initialize(CoreBootstrap $bootstrap) {
 		$this->bootstrap = $bootstrap;
 	}
 

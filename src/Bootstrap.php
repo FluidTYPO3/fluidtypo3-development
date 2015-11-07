@@ -10,6 +10,7 @@ namespace FluidTYPO3\Development;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Container\Container;
+use Composer\Autoload\ClassLoader;
 
 /**
  * Class Bootstrap
@@ -56,28 +57,29 @@ class Bootstrap {
 	}
 
 	/**
+	 * @param ClassLoader $classLoader
 	 * @param array $cacheDefinitions
 	 * @return Bootstrap
 	 */
-	public static function initialize(array $cacheDefinitions) {
+	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions) {
 		$instance = self::getInstance();
 		return $instance->initializeConstants()
 			->initializeConfiguration()
 			->initializeCaches($cacheDefinitions)
-			->initializeCmsContext()
+			->initializeCmsContext($classLoader)
 			->initializeReplacementImplementations();
 	}
 
 	/**
+	 * @param ClassLoader $classLoader
 	 * @return $this
 	 */
-	public function initializeCmsContext() {
+	public function initializeCmsContext(ClassLoader $classLoader) {
 		\TYPO3\CMS\Core\Core\Bootstrap::getInstance()
-			->baseSetup('typo3/')
-			->initializeClassLoader()
+			->initializeClassLoader($classLoader)
 			->initializeCachingFramework()
+			->baseSetup('typo3/')
 			->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager');
-		/** @var Container $container */
 		$container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
 		$this->setObjectContainer($container);
 		return $this;
