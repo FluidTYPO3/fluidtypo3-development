@@ -4,7 +4,7 @@
 $path = dirname($argv[0]) . '/';
 $root = substr($path, 0, -11);
 $root = realpath($root);
-$phpunit = './vendor/bin/phpunit -v --strict -c phpunit.xml.dist';
+$phpunit = './vendor/bin/phpunit -v -c phpunit.xml.dist';
 
 $descriptors = array(
 	array("pipe", "r"),
