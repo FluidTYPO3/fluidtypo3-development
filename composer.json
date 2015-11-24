@@ -2,7 +2,7 @@
     "name": "fluidtypo3/development",
     "description": "FluidTYPO3 development helpers - test runners, coding standards sniffing, local git hook scripts",
     "license": "GPLv3",
-    "version": "1.5.0",
+    "version": "1.5.1",
     "keywords": ["php", "git", "fluidtypo3", "typo3", "helper"],
     "authors": [
         {
