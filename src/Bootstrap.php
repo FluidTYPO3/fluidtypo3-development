@@ -121,6 +121,12 @@ class Bootstrap {
 	 * @return $this
 	 */
 	public function initializeReplacementImplementations() {
+		// this next line has a single purpose: loading the class so that the reflection framework
+		// can read the class on php7. On this particular version of php, reflecting a class does
+		// not trigger class loading and on php 5.4 (which some dependencies still test on) we
+		// cannot use the ::class notation here which would *also* solve the problem. So we cheat
+		// and create a throwaway instance here which loads the class and keeps it loaded.
+		new NullConfigurationManager();
 		$this->objectContainer->registerImplementation(
 			'TYPO3\\CMS\\Extbase\\Configuration\\ConfigurationManagerInterface',
 			'FluidTYPO3\\Development\\NullConfigurationManager'
