@@ -19,6 +19,14 @@ use TYPO3\Flow\Package\PackageInterface;
 class NullPackageManager extends FailsafePackageManager {
 
 	/**
+	 * Array of packages whose classes are loaded but do
+	 * not (necessarily) report as installed by TYPO3.
+	 *
+	 * @var array
+	 */
+	protected $virtualPackages = array();
+
+	/**
 	 * @var array
 	 */
 	protected $packageStatesConfiguration = array(
@@ -30,6 +38,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 */
 	public function initialize(CoreBootstrap $bootstrap) {
 		$this->bootstrap = $bootstrap;
+		$this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
 	}
 
 	/**
@@ -37,7 +46,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return boolean
 	 */
 	public function isPackageActive($packageKey) {
-		return in_array($packageKey, $this->getLoadedPackageKeys());
+		return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
 	}
 
 	/**
@@ -45,7 +54,7 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return boolean
 	 */
 	public function isPackageAvailable($packageKey) {
-		return in_array($packageKey, $this->getLoadedPackageKeys());
+		return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
 	}
 
 	/**

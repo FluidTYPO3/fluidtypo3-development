@@ -40,11 +40,15 @@ class Bootstrap {
 	);
 
 	/**
+	 * @var array
+	 */
+	protected static $virtualExtensionKeys = array();
+
+	/**
 	 * @return Bootstrap
 	 */
 	public static function getInstance() {
-		$object = new self();
-		return $object;
+		return new static();
 	}
 
 	/**
@@ -57,13 +61,31 @@ class Bootstrap {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getVirtualExtensionKeys() {
+		return static::$virtualExtensionKeys;
+	}
+
+	/**
+	 * @param array $virtualExtensionKeys
+	 * @return void
+	 */
+	public function setVirtualExtensionKeys(array $virtualExtensionKeys) {
+		static::$virtualExtensionKeys = $virtualExtensionKeys;
+		return $this;
+	}
+
+	/**
 	 * @param ClassLoader $classLoader
 	 * @param array $cacheDefinitions
+	 * @param array $virtualExtensionKeys
 	 * @return Bootstrap
 	 */
-	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions) {
-		$instance = self::getInstance();
-		return $instance->initializeConstants()
+	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
+		return static::getInstance()
+			->initializeConstants()
+			->setVirtualExtensionKeys($virtualExtensionKeys)
 			->initializeConfiguration()
 			->initializeCaches($cacheDefinitions)
 			->initializeCmsContext($classLoader)
