@@ -5,6 +5,12 @@ if ('YES' === getenv('CHECKSTYLE')) {
         runCommand('./vendor/bin/checkstyle');
 }
 
+if ('YES' === getenv('CHECKSTYLE_PSR2')) {
+        runCommand('mkdir -p vendor/typo3-ci');
+        runCommand('test -d vendor/typo3-ci/TYPO3CMS || git clone https://github.com/typo3-ci/TYPO3CMS.git vendor/typo3-ci/TYPO3CMS');
+        runCommand('test -d vendor/typo3-ci/TYPO3SniffPool || git clone https://github.com/typo3-ci/TYPO3SniffPool.git vendor/typo3-ci/TYPO3SniffPool');
+}
+
 if ('YES' === getenv('COVERAGE')) {
         runCommand('./vendor/bin/runcoverage');
         runCommand('ln -s Classes src', FALSE);
@@ -48,4 +54,3 @@ function runCommand($command, $exitOnError = TRUE) {
 		exit($exit);
         }
 }
-
