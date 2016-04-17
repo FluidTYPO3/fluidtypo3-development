@@ -7,6 +7,10 @@ $root = realpath($root);
 
 $standard = $root . '/vendor/fluidtypo3/coding-standards/ruleset.xml';
 
+if ('YES' === getenv('CHECKSTYLE_PSR2')) {
+	$standard = $root . '/vendor/typo3-ci/TYPO3CMS/ruleset.xml';
+}
+
 $command = './vendor/bin/phpcs -p --extensions=php --ignore=vendor --standard=' . $standard . ' .';
 
 $descriptors = array(
