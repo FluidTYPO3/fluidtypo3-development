@@ -5,9 +5,9 @@ $path = dirname($argv[0]) . '/';
 $root = substr($path, 0, -11);
 $root = realpath($root);
 
-$standard = $root . '/vendor/fluidtypo3/coding-standards/ruleset.xml';
+$standard = $root . '/vendor/typo3-ci/typo3cms/ruleset.xml';
 
-$command = './vendor/bin/phpcs -p --extensions=php --ignore=vendor --standard=' . $standard . ' .';
+$command = $root . '/vendor/bin/phpcs -p --standard=PSR2 ' . $root . '/Classes';
 
 $descriptors = array(
 	array("pipe", "r"),

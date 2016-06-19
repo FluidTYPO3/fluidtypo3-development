@@ -18,12 +18,10 @@
     "require": {
         "typo3/cms": "^7.6",
         "squizlabs/php_codesniffer": "*",
-        "fluidtypo3/coding-standards": "*",
         "phpunit/phpunit": "*",
         "mikey179/vfsStream": "* ",
         "satooshi/php-coveralls": "*",
-        "namelesscoder/typo3-repository-client": "*",
-        "johnkary/phpunit-speedtrap": "~1.0@dev"
+        "namelesscoder/typo3-repository-client": "*"
     },
     "replace": {
         "typo3/cms-composer-installers": "*"
