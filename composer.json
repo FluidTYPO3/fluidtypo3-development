@@ -26,6 +26,9 @@
         "typo3/cms-composer-installers": "*"
     },
     "bin": [
+        "bin/stage",
+        "bin/release",
+        "bin/changelog"
     ],
     "config": {
         "bin-dir": "bin"

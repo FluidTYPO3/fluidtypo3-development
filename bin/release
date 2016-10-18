@@ -1,0 +1,160 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @param string $command
+ * @param boolean $expectsEmptyOutput
+ * @param string|NULL $errorMessage
+ * @return array
+ */
+function commandOrFail($command, $expectsEmptyOutput = FALSE) {
+	$code = 0;
+	$output = array();
+	exec($command, $output, $code);
+	if (0 < $code || (TRUE === $expectsEmptyOutput && 0 < count($output))) {
+		$message = ' ! Command failed! ' . $command;
+		if (TRUE === $expectsEmptyOutput) {
+			$message .= PHP_EOL;
+			$message .= ' ! No output was expected from command but output occurred:';
+			$message .= implode(PHP_EOL, $output);
+		}
+		exitWithMessage($message, (TRUE === $expectsEmptyOutput && 0 === $code) ? 1 : $code);
+	}
+	return $output;
+}
+
+/**
+ * @param string $message
+ * @param integer $code
+ * @return void
+ */
+function exitWithMessage($message, $code = 0) {
+	echo $message;
+	echo PHP_EOL;
+	exit($code);
+}
+
+/**
+ * @param string $message
+ * @param string $mark
+ */
+function message($message, $mark = '✓') {
+	echo sprintf(' %s ' . $message, $mark);
+	echo PHP_EOL;
+}
+
+// Declare variables used by script below
+$repository = pathinfo(trim(shell_exec('pwd')), PATHINFO_FILENAME);
+$repositoryAddress = sprintf('https://github.com/FluidTYPO3/%s.git', $repository);
+$delay = 10;
+$version = $argv[1];
+$stability = isset($argv[2]) ? $argv[2] : 'stable';
+if (empty($version)) {
+    exitWithMessage('Command requires version as first argument', 1);
+}
+if (!in_array($stability, array('stable', 'beta', 'experimental', 'obsolete'))) {
+    exitWithMessage(sprintf('Provided stability "%s" is not valid. Valid values: stable, beta, experimental, obsolete', $stability), 2);
+}
+if (!file_exists('composer.lock')) {
+    exitWithMessage('Please run "composer install" before you begin, to ensure you have all release utilities installed in the right versions', 4);
+}
+
+message('Starting release of ' . $repository, '·');
+echo ' · ' . sprintf('Delaying for %s seconds. If you wish to abort, NOW is the time to press CTRL+C: ', $delay);
+while (0 < $delay && -- $delay) {
+	echo $delay . '..';
+	sleep(1);
+}
+echo PHP_EOL;
+message('Okay to proceed');
+
+// Step 1: Confirm a clean working directory or fail.
+commandOrFail('git status -s', TRUE);
+message('Working directory is clean!');
+
+// Step 2: Checkout staging and master and pull changes
+message('Pulling staging and master branches from ' . $repository, '·');
+commandOrFail('git checkout staging -q', TRUE);
+commandOrFail('git pull ' . $repositoryAddress . ' staging -q');
+commandOrFail('git checkout master -q', TRUE);
+commandOrFail('git pull ' . $repositoryAddress . ' master -q');
+message('Staging and master branches pulled');
+
+// Step 3: Confirm differences exists between `master` and `staging` branches or fail
+$diff = commandOrFail('git diff master...staging');
+if (0 === count($diff)) {
+	exitWithMessage(' x Branches staging and master are identical - nothing would be released, stopping.', 1);
+}
+message('Staging and master branches are different, good!');
+
+// Step 4: If unit tests are present: check out `staging` and ensure all tests run
+commandOrFail('git checkout staging -q');
+commandOrFail('rm composer.lock && composer install -q', FALSE, 'Composer install failed (staging)! Please address the issue and retry');
+if (file_exists('phpunit.xml.dist')) {
+    commandOrFail('./vendor/bin/phpunit');
+} else {
+    message('Package does not appear to contain unit tests on the staging branch');
+}
+
+// Step 5: Check out `master` branch or fail.
+commandOrFail('git checkout master -q');
+message('Branch "master" was checked out');
+
+// Step 6: Merge branch `staging` into `master` and force-generate a merge commit or fail on conflicts.
+commandOrFail('git merge --no-ff -s recursive -X theirs staging');
+message('Branch "staging" was merged into "master" with no fast forwarding using "recursive" strategy favoring "their" branch');
+
+// Step 7: Run composer install, run unit tests if config is present
+commandOrFail('rm composer.lock && composer install -q', FALSE, 'Composer install failed (master)! Please address the issue and retry');
+if (file_exists('phpunit.xml.dist')) {
+    commandOrFail('./vendor/bin/phpunit');
+    message('Unit tests executed successfully');
+} else {
+    message('Package does not appear to contain unit tests (no phpunit.xml.dist present)');
+}
+
+// Step 8: Update and commit metadata files and stability, create automatic change log
+commandOrFail('./vendor/bin/changelog ' . $version, FALSE);
+commandOrFail(sprintf('git add Documentation/Changelog/%s.md CHANGELOG.md', $version));
+commandOrFail(sprintf('git commit -m "[DOC] Create change log for %s"', $version));
+message(sprintf('Main change log updated. Change log was created for %s (%s): Documentation/Changelog/%s.md', $version, $stability, $version));
+commandOrFail('./vendor/bin/setversion ' . $version . ' ' . $stability);
+commandOrFail(sprintf('git commit -a -m "[TER] %s"', $version));
+message(sprintf('Version was updated to %s (%s)', $version, $stability));
+
+// Step 9: Create tag that becomes release
+commandOrFail('git tag -s ' . $version . ' -a -m "TER ' . $version . ' ' . ucfirst($stability) . '"');
+message('Release tagged, annotated and signed');
+
+// Step 10: Push the result directly to upstream repository
+commandOrFail('git push ' . $repositoryAddress . ' master -q --follow-tags');
+commandOrFail('git fetch origin -q');
+message('The merged "master" branch was pushed to ' . $repositoryAddress);
+
+// Step 11: Check out development again, set beta stability and synchronise development and staging branches
+commandOrFail('git fetch origin -q');
+commandOrFail('git checkout development -q');
+commandOrFail('git pull ' . $repositoryAddress . ' development -q');
+commandOrFail('git merge --no-ff -s recursive -X theirs master');
+commandOrFail('./vendor/bin/setversion ' . $version . ' beta');
+commandOrFail('git commit -a -m "[TASK] Set beta stability"');
+commandOrFail('git push origin development -q');
+commandOrFail('git checkout staging -q');
+commandOrFail('git pull ' . $repositoryAddress . ' staging -q');
+commandOrFail('git merge --no-ff -s recursive -X theirs development');
+commandOrFail('git push origin staging -q');
+commandOrFail('git checkout development -q');
+message('You are now back on branch "development". Branches "development" and "staging" have been synced with master and pushed to upstream');
+
+// Step 12: Report success
+message(
+    sprintf(
+        'The repository was released in version %s stability %s!',
+        $version,
+        $stability
+    )
+);
+
+echo ' · Release outlets:' . PHP_EOL;
+echo sprintf(' · https://packagist.org/packages/fluidtypo3/%s' . PHP_EOL, $repository);
+echo sprintf(' · https://typo3.org/extensions/repository/view/%s' . PHP_EOL, $repository);
