@@ -26,11 +26,6 @@
         "typo3/cms-composer-installers": "*"
     },
     "bin": [
-        "bin/checkstyle",
-        "bin/runtests",
-        "bin/runcoverage",
-        "bin/make",
-        "bin/ci-runner"
     ],
     "config": {
         "bin-dir": "bin"
