@@ -136,8 +136,10 @@ commandOrFail('git fetch origin -q');
 commandOrFail('git checkout development -q');
 commandOrFail('git pull ' . $repositoryAddress . ' development -q');
 commandOrFail('git merge --no-ff -s recursive -X theirs master');
-commandOrFail('./vendor/bin/setversion ' . $version . ' beta');
-commandOrFail('git commit -a -m "[TASK] Set beta stability"');
+if ($stability !== 'beta') {
+    commandOrFail('./vendor/bin/setversion ' . $version . ' beta');
+    commandOrFail('git commit -a -m "[TASK] Set beta stability"');
+}
 commandOrFail('git push origin development -q');
 commandOrFail('git checkout staging -q');
 commandOrFail('git pull ' . $repositoryAddress . ' staging -q');
