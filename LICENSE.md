@@ -1,6 +1,6 @@
 ### Copyright notice
 
-> (c) 2015 Claus Due <claus@namelesscoder.net>
+> (c) 2016 Claus Due <claus@namelesscoder.net>
 > All rights reserved
 
 This repository is part of the TYPO3 project. The TYPO3 project is
