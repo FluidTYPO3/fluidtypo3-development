@@ -113,11 +113,15 @@ if (file_exists('phpunit.xml.dist')) {
     message('Package does not appear to contain unit tests (no phpunit.xml.dist present)');
 }
 
-// Step 8: Update and commit metadata files and stability, create automatic change log
-commandOrFail('./vendor/bin/changelog ' . $version, FALSE);
-commandOrFail(sprintf('git add Documentation/Changelog/%s.md CHANGELOG.md', $version));
-commandOrFail(sprintf('git commit -m "[DOC] Create change log for %s"', $version));
-message(sprintf('Main change log updated. Change log was created for %s (%s): Documentation/Changelog/%s.md', $version, $stability, $version));
+// Step 8: Update and commit metadata files and stability, create automatic change log if none exists
+if (file_exists(sprintf('Documentation/Changelog/%s.md', $version))) {
+    message(sprintf('Change log for version %s already exists - good!', $version));
+} else {
+    commandOrFail('./vendor/bin/changelog ' . $version, FALSE);
+    commandOrFail(sprintf('git add Documentation/Changelog/%s.md CHANGELOG.md', $version));
+    commandOrFail(sprintf('git commit -m "[DOC] Create change log for %s"', $version));
+    message(sprintf('Main change log updated. Change log was created for %s (%s): Documentation/Changelog/%s.md', $version, $stability, $version));
+}
 commandOrFail('./vendor/bin/setversion ' . $version . ' ' . $stability);
 commandOrFail(sprintf('git commit -a -m "[TER] %s"', $version));
 message(sprintf('Version was updated to %s (%s)', $version, $stability));
