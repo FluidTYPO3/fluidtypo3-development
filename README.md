@@ -14,21 +14,39 @@ The same scripts can be used from a continuous integration context.
 To use `fluidtypo3-development` you must add it as a composer dependency:
 
 ```bash
-composer require fluidtypo3/development:*
+composer require --dev fluidtypo3/development:*
 ```
+
+Note that this package should only be used in local development!
 
 Requirements
 ------------
 
 * composer (scripts are tailored to be executed from composer projects only)
-* PHP `xdebug` extension (optional, but required for the `runcoverage` command)
+* PHP `xdebug` extension (optional, but required for generating code coverage)
 * PHPUnit configuration file present in `./phpunit.xml.dist`
+* Optional `Documentation/Changelog` directory if you use the `changelog` command
 
 Usage instructions: utility scripts
 -----------------------------------
 
 A few handy shell utilities are included with `fluidtypo3-development` to help you perform a few of the tasks associated with
 maintaining and developing official FluidTYPO3 repositories. These utilities are:
+
+**Inside this package:**
+
+* `./vendor/bin/changelog` which can be used to automatically generate a change log for an up-coming version. The command is
+  used by the `release` command as well. It takes one mandatory argument, the version number (e.g. `1.2.3`) and one additional
+  and optional argument, a "since" date (e.g. `2016/03/10` for March 10th 2016). Executing the command generates a dedicated
+  change log file in `Documentation/Changelog/$version.md` and updates the `CHANGELOG.md` file to record the new log file.
+* `./vendor/bin/stage` which performs the standard staging steps for FluidTYPO3 extensions - makes sure the working copy is
+  clean, checks out staging and merges development, runs unit tests and if succesful, pushes the result to the remote for
+  continuous integration to do its work.
+* `./vendor/bin/release` which releases an extension (which was staged immediately before that). Checks out the master branch,
+  merges the staging branch into it, runs unit tests, generates a change log, raises the version number and commits a new
+  (signed) tag. If all of this is succesful, the result is pushed to the remote and GitHub hooks deploy the extension to TER.
+
+**From the `namelesscoder/typo3-repository-client` package:**
 
 * `./vendor/bin/setversion` which can be used to consistently update the version number when the repository is a TYPO3
   extension. The script updates the `composer.json` and `ext_emconf.php` files with a new version number and must be used
@@ -44,29 +62,15 @@ e.g. `./vendor/bin/phpunit -h`.
 Usage instructions: testing and validation
 ------------------------------------------
 
-To run all tests and ensure that git all hooks are up-to-date:
+Hooks are provided which prepare and validate commit messages that you make. You can install these by copying them into
+the `.git/hooks/` folder. When this package is added as a dependency, you normally find the hooks we deliver in the path
+`./vendor/fluidtypo3/development/hooks` - simply copy them from here to the applied hooks folder.
 
-```bash
-./vendor/bin/make
+Every FluidTYPO3 extension is testable using a completely vanilla phpunit command:
+
+```
+./vendor/bin/phpunit
 ```
 
-This will validate commits in history, perform code style validations and execute tests. It will also prepare your local Git
-repository with a so-called `pre-commit` and other hook scripts which will run the assistant script when you make a new commit in Git,
-ensuring that you do not commit code that violates the style guidelines or break tests.
-
-You can also run the individual assistant scripts:
-
-```bash
-./vendor/bin/checkcommits
-./vendor/bin/checkstyle
-./vendor/bin/runtests
-./vendor/bin/runcoverage
-```
-
-Coverage file outputs
----------------------
-
-After tests have been executed you will find a Clover format code coverage log in the `build/logs/` folder - you can load this
-file into an IDE like PHPStorm in order to highlight covered/uncovered lines, and you can run `./vendor/bin/coveralls` without
-additional arguments to upload the coverage data to https://coveralls.io (note that Coveralls uses a repository token which
-must either be exported as an ENV variable or configured in a `.coveralls.yml` file - see Coveralls documentation).
+Nothing else required. The command is the default phpunit CLI command and supports all the usual switches. This command is
+also what gets executed as part of the `stage` and `release` CLI commands to ensure consistency before pushing anything.
