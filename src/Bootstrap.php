@@ -15,7 +15,7 @@ use Composer\Autoload\ClassLoader;
 /**
  * Class Bootstrap
  */
-class Bootstrap {
+class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 
 	const CACHE_NULL = 'null';
 	const CACHE_PHP_NULL = 'phpnull';
@@ -43,13 +43,6 @@ class Bootstrap {
 	 * @var array
 	 */
 	protected static $virtualExtensionKeys = array();
-
-	/**
-	 * @return Bootstrap
-	 */
-	public static function getInstance() {
-		return new static();
-	}
 
 	/**
 	 * @param Container $container
@@ -83,23 +76,29 @@ class Bootstrap {
 	 * @return Bootstrap
 	 */
 	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
-		return static::getInstance()
-			->initializeConstants()
+		$instance = static::getInstance();
+		if (method_exists($instance, 'setRequestType')) {
+			$instance->setRequestType(1);
+		}
+		$instance->initializeClassLoader($classLoader);
+		$instance->initializeConstants()
+			->initializeClassLoader($classLoader)
 			->setVirtualExtensionKeys($virtualExtensionKeys)
 			->initializeConfiguration()
 			->initializeCaches($cacheDefinitions)
-			->initializeCmsContext($classLoader)
+			->initializeCmsContext()
 			->initializeReplacementImplementations();
+
+		return $instance;
 	}
 
 	/**
 	 * @param ClassLoader $classLoader
 	 * @return $this
 	 */
-	public function initializeCmsContext(ClassLoader $classLoader) {
-		\TYPO3\CMS\Core\Core\Bootstrap::getInstance()
-			->initializeClassLoader($classLoader)
-			->initializeCachingFramework()
+	public function initializeCmsContext() {
+		$this->initializeCachingFramework()
+			->defineLoggingAndExceptionConstants()
 			->baseSetup('typo3/')
 			->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager');
 		$container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
@@ -111,7 +110,7 @@ class Bootstrap {
 	 * @return $this
 	 */
 	public function initializeConstants() {
-		define('PATH_thisScript', realpath('vendor/typo3/cms/typo3/index.php'));
+		define('PATH_thisScript', realpath('index.php'));
 		define('TYPO3_MODE', 'BE');
 		putenv('TYPO3_CONTEXT=Testing');
 		return $this;
@@ -124,6 +123,9 @@ class Bootstrap {
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['trustedHostsPattern'] = '.?';
 		$GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash'] = array();
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['lang']['parser']['xlf'] = 'TYPO3\\CMS\\Core\\Localization\\Parser\\XliffParser';
+		$GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG'] = FALSE;
+		$GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_exceptionDLOG'] = FALSE;
+		$GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG'] = FALSE;
 		return $this;
 	}
 

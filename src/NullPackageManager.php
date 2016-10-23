@@ -36,9 +36,16 @@ class NullPackageManager extends FailsafePackageManager {
 	/**
 	 * @param CoreBootstrap $bootstrap
 	 */
-	public function initialize(CoreBootstrap $bootstrap) {
-		$this->bootstrap = $bootstrap;
+	public function initialize() {
 		$this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
+	}
+
+	/**
+	 * @param Bootstrap $bootstrap
+	 * @return void
+	 */
+	public function setBootstrap(Bootstrap $bootstrap) {
+		$this->bootstrap = $bootstrap;
 	}
 
 	/**
@@ -75,6 +82,9 @@ class NullPackageManager extends FailsafePackageManager {
 	 */
 	protected function getLoadedPackageKeys() {
 		$root = realpath(__DIR__ . '/../../../../');
+		if (!file_exists($root . '/composer.json')) {
+			$root = realpath(__DIR__ . '/../');
+		}
 		$composerFile = $root . '/composer.json';
 		$parsed = json_decode(file_get_contents($composerFile), JSON_OBJECT_AS_ARRAY);
 		$key = substr($parsed['name'], strpos($parsed['name'], '/') + 1);
@@ -91,5 +101,4 @@ class NullPackageManager extends FailsafePackageManager {
 		}
 		return $loaded;
 	}
-
 }
