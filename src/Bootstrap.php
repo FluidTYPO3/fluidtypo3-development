@@ -8,6 +8,7 @@ namespace FluidTYPO3\Development;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Container\Container;
 use Composer\Autoload\ClassLoader;
@@ -77,6 +78,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 	 */
 	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
 		$instance = static::getInstance();
+        $instance->applicationContext = new ApplicationContext('Testing');
 		if (method_exists($instance, 'setRequestType')) {
 			$instance->setRequestType(1);
 		}
