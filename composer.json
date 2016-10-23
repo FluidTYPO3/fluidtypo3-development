@@ -22,9 +22,6 @@
         "satooshi/php-coveralls": "*",
         "namelesscoder/typo3-repository-client": "*"
     },
-    "replace": {
-        "typo3/cms-composer-installers": "*"
-    },
     "bin": [
         "bin/stage",
         "bin/release",
