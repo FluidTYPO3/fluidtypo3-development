@@ -88,11 +88,26 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 			->setVirtualExtensionKeys($virtualExtensionKeys)
 			->initializeConfiguration()
 			->initializeCaches($cacheDefinitions)
-			->initializeCmsContext()
-			->initializeReplacementImplementations();
+            ->initializeCachingFramework()
+            ->defineLoggingAndExceptionConstants()
+            ->baseSetup('')
+            ->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager')
+            ->initializeObjectContainer()
+			->initializeReplacementImplementations()
+        ;
 
 		return $instance;
 	}
+
+    /**
+     * @return $this
+     */
+	public function initializeObjectContainer()
+    {
+        $container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
+        $this->setObjectContainer($container);
+        return $this;
+    }
 
 	/**
 	 * @param ClassLoader $classLoader
