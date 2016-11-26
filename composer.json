@@ -15,7 +15,7 @@
         }
     },
     "require": {
-        "typo3/cms": "^7.6",
+        "typo3/cms": "^7.6.13",
         "squizlabs/php_codesniffer": "*",
         "phpunit/phpunit": "*",
         "mikey179/vfsStream": "* ",
