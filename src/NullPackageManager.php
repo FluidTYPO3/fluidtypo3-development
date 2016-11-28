@@ -69,10 +69,14 @@ class NullPackageManager extends FailsafePackageManager {
 	 * @return PackageInterface
 	 */
 	public function getPackage($packageKey) {
-		$path = realpath(dirname(__FILE__) . '/../../' . $packageKey) . '/';
-		if (FALSE === file_exists($path . 'ext_emconf.php')) {
-			$path = realpath(dirname(__FILE__) . '/../../../../') . '/';
-		}
+        if (file_exists(__DIR__ . '/../../../../typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
+			$path = realpath(__DIR__ . '/../../../../typo3conf/ext/' . $packageKey) . '/';
+		} else {
+            $path = realpath(__DIR__ . '/../../' . $packageKey) . '/';
+            if (FALSE === file_exists($path . 'ext_emconf.php')) {
+                $path = realpath(__DIR__ . '/../../../../') . '/';
+            }
+        }
 		$package = new Package($this, $packageKey, $path, $path . 'Classes/');
 		return $package;
 	}
