@@ -79,7 +79,7 @@ $lastVersion = '1.0.0';
 // Detect the last created change log, but only if "since" was not manually specified as second argument to command
 if (!$declaredSince) {
     $lastFile = end($existingFiles);
-    $since = filectime($lastFile);
+    $since = filemtime($lastFile);
     $lastVersion = pathinfo($lastFile, PATHINFO_FILENAME);
     reset($existingFiles);
 }
