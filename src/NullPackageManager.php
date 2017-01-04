@@ -36,7 +36,7 @@ class NullPackageManager extends FailsafePackageManager {
 	/**
 	 * @param CoreBootstrap $bootstrap
 	 */
-	public function initialize() {
+	public function initialize(CoreBootstrap $bootstrap) {
 		$this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
 	}
 
