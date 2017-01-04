@@ -77,6 +77,12 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 	 * @return Bootstrap
 	 */
 	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
+	    $packageManagerClassName = NullPackageManager::class;
+	    $packageManagerClassReflection = new \ReflectionClass($packageManagerClassName);
+	    $initializeMethodReflection = $packageManagerClassReflection->getMethod('initialize');
+	    if ($initializeMethodReflection->getNumberOfRequiredParameters() > 0) {
+	        $packageManagerClassName = NullLegacyPackageManager::class;
+        }
 		$instance = static::getInstance();
         $instance->applicationContext = new ApplicationContext('Testing');
 		if (method_exists($instance, 'setRequestType')) {
@@ -91,7 +97,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
             ->initializeCachingFramework()
             ->defineLoggingAndExceptionConstants()
             ->baseSetup('')
-            ->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager')
+            ->initializePackageManagement($packageManagerClassName)
             ->initializeObjectContainer()
 			->initializeReplacementImplementations()
         ;
@@ -108,20 +114,6 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
         $this->setObjectContainer($container);
         return $this;
     }
-
-	/**
-	 * @param ClassLoader $classLoader
-	 * @return $this
-	 */
-	public function initializeCmsContext() {
-		$this->initializeCachingFramework()
-			->defineLoggingAndExceptionConstants()
-			->baseSetup('typo3/')
-			->initializePackageManagement('FluidTYPO3\\Development\\NullPackageManager');
-		$container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
-		$this->setObjectContainer($container);
-		return $this;
-	}
 
 	/**
 	 * @return $this

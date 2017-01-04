@@ -8,16 +8,19 @@ namespace FluidTYPO3\Development;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use TYPO3\CMS\Core\Core\Bootstrap as CoreBootstrap;
+
 /**
- * Class NullPackageManager
+ * Class NullLegacyPackageManager
  */
-class NullPackageManager extends AbstractNullPackageManager
+class NullLegacyPackageManager extends AbstractNullPackageManager
 {
 
 	/**
-	 * @return void
+	 * @param CoreBootstrap $bootstrap
+     * @return void
 	 */
-	public function initialize()
+	public function initialize(CoreBootstrap $bootstrap)
     {
 		$this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
 	}
