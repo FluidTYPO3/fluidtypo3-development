@@ -9,6 +9,7 @@ namespace FluidTYPO3\Development;
  */
 
 use TYPO3\CMS\Core\Core\ApplicationContext;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Container\Container;
 use Composer\Autoload\ClassLoader;
@@ -78,7 +79,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 	 */
 	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
 	    $packageManagerClassName = NullPackageManager::class;
-	    $packageManagerClassReflection = new \ReflectionClass($packageManagerClassName);
+	    $packageManagerClassReflection = new \ReflectionClass(PackageManager::class);
 	    $initializeMethodReflection = $packageManagerClassReflection->getMethod('initialize');
 	    if ($initializeMethodReflection->getNumberOfRequiredParameters() > 0) {
 	        $packageManagerClassName = NullLegacyPackageManager::class;
