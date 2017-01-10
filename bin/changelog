@@ -66,22 +66,25 @@ if (file_exists($changelogFile)) {
 
 $existingFiles = glob($logFilesDir . '/*.md');
 
-usort($existingFiles, function ($a, $b) {
-    $a = pathinfo($a, PATHINFO_FILENAME);
-    $b = pathinfo($b, PATHINFO_FILENAME);
-    $a = explode('.', $a);
-    $b = explode('.', $b);
-    return $a[0] > $b[0] || ($a[0] >= $b[0] && $a[1] > $b[1]) || ($a[0] >= $b[0] && $a[1] >= $b[1] && $a[2] > $b[2]);
-});
-
 $lastVersion = '1.0.0';
 
 // Detect the last created change log, but only if "since" was not manually specified as second argument to command
 if (!$declaredSince) {
-    $lastFile = end($existingFiles);
-    $since = filemtime($lastFile);
-    $lastVersion = pathinfo($lastFile, PATHINFO_FILENAME);
-    reset($existingFiles);
+    foreach ($existingFiles as $existingFile) {
+        $fp = fopen($existingFile, 'r');
+        $firstFourty = fread($fp, 40);
+        fclose($fp);
+
+        $matches = [];
+        preg_match('/\\([0-9]{4}\\/[0-9]{2}\\/[0-9]{2}\\)/', $firstFourty, $matches);
+        $dateStamp = trim($matches[0], '()');
+        $created = strtotime($dateStamp);
+
+        if ($created > $since) {
+            $since = $created;
+            $lastVersion = pathinfo($existingFile, PATHINFO_FILENAME);
+        }
+    }
 }
 $since = date('Y/m/d', $since);
 
@@ -147,10 +150,21 @@ foreach ($existingFiles as $existingFile) {
             $existingVersion
         );
     }
+
+    $fp = fopen($existingFile, 'r');
+    $firstFourty = fread($fp, 40);
+    fclose($fp);
+
+    $matches = [];
+    preg_match('/\\([0-9]{4}\\/[0-9]{2}\\/[0-9]{2}\\)/', $firstFourty, $matches);
+    $dateStamp = trim($matches[0], '()');
+    $created = strtotime($dateStamp);
+
+
     array_unshift($logs, sprintf(
         '* [%s (%s)](%s) %s',
         $existingVersion,
-        date('Y/m/d', filemtime($existingFile)),
+        date('Y/m/d', $created),
         $existingFile,
         $fullChangesNote
     ));
