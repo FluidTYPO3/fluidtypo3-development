@@ -53,7 +53,7 @@ if (empty($version)) {
     exitWithMessage('Command requires version as first argument');
 }
 if (empty($until)) {
-    $until = date('Y/m/d');
+    $until = time();
 }
 
 message(sprintf('Writing change log for %s version %s', $repository, $version));
