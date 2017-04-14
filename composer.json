@@ -20,9 +20,11 @@
         "phpunit/phpunit": "^5.7",
         "mikey179/vfsStream": "* ",
         "satooshi/php-coveralls": "*",
-        "namelesscoder/typo3-repository-client": "*"
+        "namelesscoder/typo3-repository-client": "*",
+        "typo3/fluid-schema-generator": "^2.1"
     },
     "bin": [
+        "bin/generateschema-typo3",
         "bin/stage",
         "bin/release",
         "bin/changelog"
