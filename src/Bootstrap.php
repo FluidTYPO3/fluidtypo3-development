@@ -21,6 +21,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 
 	const CACHE_NULL = 'null';
 	const CACHE_PHP_NULL = 'phpnull';
+	const CACHE_MEMORY = 'memory';
 
 	/**
 	 * @var Container
@@ -38,6 +39,10 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 		self::CACHE_PHP_NULL => array(
 			'frontend' => 'TYPO3\\CMS\\Core\\Cache\\Frontend\\PhpFrontend',
 			'backend' => 'TYPO3\\CMS\\Core\\Cache\\Backend\\NullBackend'
+		),
+		self::CACHE_MEMORY => array(
+			'frontend' => 'TYPO3\\CMS\\Core\\Cache\\Frontend\\VariableFrontend',
+			'backend' => 'TYPO3\\CMS\\Core\\Cache\\Backend\\TransientMemoryBackend'
 		)
 	);
 
