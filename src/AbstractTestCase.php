@@ -1,5 +1,5 @@
 <?php
-namespace FluidTYPO3\Fluidpages\Tests\Unit;
+namespace FluidTYPO3\Development;
 
 /*
  * This file is part of the fluidtypo3/development project under GPLv2 or later.
