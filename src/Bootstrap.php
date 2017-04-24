@@ -102,7 +102,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 			->initializeCaches($cacheDefinitions)
             ->initializeCachingFramework()
             ->defineLoggingAndExceptionConstants()
-            ->baseSetup('')
+            ->baseSetup(0)
             ->initializePackageManagement($packageManagerClassName)
             ->initializeObjectContainer()
 			->initializeReplacementImplementations()
@@ -125,7 +125,8 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 	 * @return $this
 	 */
 	public function initializeConstants() {
-		define('PATH_thisScript', realpath('index.php'));
+        define('PATH_site', getenv('TYPO3_PATH_ROOT'));
+        define('PATH_thisScript', PATH_site . '/typo3/index.php');
 		define('TYPO3_MODE', 'BE');
 		putenv('TYPO3_CONTEXT=Testing');
 		return $this;
