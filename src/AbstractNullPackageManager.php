@@ -66,8 +66,13 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
 	 */
 	public function getPackage($packageKey)
     {
-        if (file_exists(__DIR__ . '/../../../../typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
-			$path = realpath(__DIR__ . '/../../../../typo3conf/ext/' . $packageKey) . '/';
+        $pwd = trim(shell_exec('pwd'));
+        $json = json_decode(file_get_contents($pwd . '/composer.json'), true);
+        $folder = $pwd . (($json['extra']['typo3/cms']['web-dir'] ?? false) ? '/' . $json['extra']['typo3/cms']['web-dir'] . '/' : '');
+        if (file_exists($folder . '/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
+            $path = realpath($folder . '/typo3conf/ext/' . $packageKey) . '/';
+        } elseif (file_exists($folder . '/typo3/sysext/' . $packageKey . '/ext_emconf.php')) {
+            $path = realpath($folder . '/typo3/sysext/' . $packageKey) . '/';
 		} else {
             $path = realpath(__DIR__ . '/../../' . $packageKey) . '/';
             if (FALSE === file_exists($path . 'ext_emconf.php')) {
@@ -83,20 +88,24 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
 	 */
 	protected function getLoadedPackageKeys()
     {
-		$root = realpath(__DIR__ . '/../../../../');
+		$root = trim(shell_exec('pwd'));
 		if (!file_exists($root . '/composer.json')) {
 			$root = realpath(__DIR__ . '/../');
 		}
 		$composerFile = $root . '/composer.json';
-		$parsed = json_decode(file_get_contents($composerFile), JSON_OBJECT_AS_ARRAY);
-		$key = substr($parsed['name'], strpos($parsed['name'], '/') + 1);
-		$loaded = array($key);
-		if (TRUE === isset($parsed['require-dev'])) {
+		$parsed = json_decode(file_get_contents($composerFile), true);
+		if ($parsed['name'] ?? false) {
+            $key = substr($parsed['name'], strpos($parsed['name'], '/') + 1);
+            $loaded = [$key];
+        } else {
+		    $loaded = [];
+        }
+		if (isset($parsed['require-dev'])) {
 			foreach (array_keys($parsed['require-dev']) as $packageName) {
 				$loaded[] = substr($packageName, strpos($packageName, '/') + 1);
 			}
 		}
-		if (TRUE === isset($parsed['require'])) {
+		if (isset($parsed['require'])) {
 			foreach (array_keys($parsed['require']) as $packageName) {
 				$loaded[] = substr($packageName, strpos($packageName, '/') + 1);
 			}
