@@ -114,6 +114,17 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
     /**
      * @return $this
      */
+	public function defineLoggingAndExceptionConstants()
+    {
+        if (method_exists(parent::class, 'defineLoggingAndExceptionConstants')) {
+            parent::defineLoggingAndExceptionConstants();
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
 	public function initializeObjectContainer()
     {
         $container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container');
