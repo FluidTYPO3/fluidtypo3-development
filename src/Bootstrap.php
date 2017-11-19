@@ -153,6 +153,16 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG'] = FALSE;
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_exceptionDLOG'] = FALSE;
 		$GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG'] = FALSE;
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['preProcessors'] = [
+            \TYPO3Fluid\Fluid\Core\Parser\TemplateProcessor\EscapingModifierTemplateProcessor::class,
+            \TYPO3Fluid\Fluid\Core\Parser\TemplateProcessor\PassthroughSourceModifierTemplateProcessor::class,
+            \TYPO3Fluid\Fluid\Core\Parser\TemplateProcessor\NamespaceDetectionTemplateProcessor::class
+        ];
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['expressionNodeTypes'] = [
+            \TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\Expression\CastingExpressionNode::class,
+            \TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\Expression\MathExpressionNode::class,
+            \TYPO3Fluid\Fluid\Core\Parser\SyntaxTree\Expression\TernaryExpressionNode::class
+        ];
 		return $this;
 	}
 
