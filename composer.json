@@ -28,8 +28,5 @@
         "bin/stage",
         "bin/release",
         "bin/changelog"
-    ],
-    "config": {
-        "bin-dir": "bin"
-    }
+    ]
 }
