@@ -15,9 +15,7 @@
         }
     },
     "require": {
-        "typo3/cms-core": ">=7.6.13, <7.6.99|^8.4|^9|dev-master",
-        "typo3/cms-backend": ">=7.6.13, <7.6.99|^8.4|^9|dev-master",
-        "typo3/cms-frontend": ">=7.6.13, <7.6.99|^8.4|^9|dev-master",
+        "typo3/minimal": ">=7.6.13, <7.6.99|^8.4|^9|dev-master",
         "squizlabs/php_codesniffer": "*",
         "phpunit/phpunit": "^5.7",
         "mikey179/vfsStream": "* ",
