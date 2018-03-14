@@ -34,8 +34,7 @@
         "phpunit/phpunit": "^5.7",
         "mikey179/vfsStream": "* ",
         "satooshi/php-coveralls": "*",
-        "namelesscoder/typo3-repository-client": "*",
-        "typo3/fluid-schema-generator": "^2.1"
+        "namelesscoder/typo3-repository-client": "*"
     },
     "bin": [
         "bin/generateschema-typo3",
