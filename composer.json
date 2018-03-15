@@ -27,7 +27,6 @@
         "typo3/cms-recordlist": ">=7.6.13, <7.6.99|^8|^9|dev-master",
         "typo3/cms-scheduler": ">=7.6.13, <7.6.99|^8|^9|dev-master",
         "typo3/cms-tstemplate": ">=7.6.13, <7.6.99|^8|^9|dev-master",
-        "typo3/cms-version": ">=7.6.13, <7.6.99|^8|^9|dev-master",
         "typo3/cms-workspaces": ">=7.6.13, <7.6.99|^8|^9|dev-master",
         "typo3/cms-taskcenter": ">=7.6.13, <7.6.99|^8|^9|dev-master",
         "squizlabs/php_codesniffer": "*",
