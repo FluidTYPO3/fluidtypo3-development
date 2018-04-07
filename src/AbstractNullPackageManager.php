@@ -69,7 +69,9 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
         $pwd = trim(shell_exec('pwd'));
         $json = json_decode(file_get_contents($pwd . '/composer.json'), true);
         $folder = $pwd . (($json['extra']['typo3/cms']['web-dir'] ?? false) ? '/' . $json['extra']['typo3/cms']['web-dir'] . '/' : '');
-        if (file_exists($folder . '/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
+        if (file_exists($folder . '/public/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
+            $path = realpath($folder . '/public/typo3conf/ext/' . $packageKey) . '/';
+        } elseif (file_exists($folder . '/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
             $path = realpath($folder . '/typo3conf/ext/' . $packageKey) . '/';
         } elseif (file_exists($folder . '/typo3/sysext/' . $packageKey . '/ext_emconf.php')) {
             $path = realpath($folder . '/typo3/sysext/' . $packageKey) . '/';
