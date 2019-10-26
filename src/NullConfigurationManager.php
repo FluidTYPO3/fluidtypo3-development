@@ -11,30 +11,30 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class NullConfigurationManager implements ConfigurationManagerInterface {
 
-	/**
-	 * @param string $type
-	 * @param string $extensionName
-	 * @param string $pluginName
-	 * @return array
-	 */
-	public function getConfiguration($type, $extensionName = NULL, $pluginName = NULL) {
-		return $this->getTypoScriptSetup();
-	}
+    /**
+     * @param string $type
+     * @param string $extensionName
+     * @param string $pluginName
+     * @return array
+     */
+    public function getConfiguration($type, $extensionName = NULL, $pluginName = NULL) {
+        return $this->getTypoScriptSetup();
+    }
 
-	/**
-	 * @param string $featureName
-	 * @return boolean
-	 */
-	public function isFeatureEnabled($featureName) {
-		TRUE;
-	}
+    /**
+     * @param string $featureName
+     * @return boolean
+     */
+    public function isFeatureEnabled($featureName) {
+        TRUE;
+    }
 
-	/**
-	 * @return ContentObjectRenderer
-	 */
-	public function getContentObject() {
-		return new ContentObjectRenderer();
-	}
+    /**
+     * @return ContentObjectRenderer
+     */
+    public function getContentObject() {
+        return new ContentObjectRenderer();
+    }
 
     /**
      * @param array $frameworkConfiguration

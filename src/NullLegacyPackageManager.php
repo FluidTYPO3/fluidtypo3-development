@@ -16,13 +16,13 @@ use TYPO3\CMS\Core\Core\Bootstrap as CoreBootstrap;
 class NullLegacyPackageManager extends AbstractNullPackageManager
 {
 
-	/**
-	 * @param CoreBootstrap $bootstrap
+    /**
+     * @param CoreBootstrap $bootstrap
      * @return void
-	 */
-	public function initialize(CoreBootstrap $bootstrap)
+     */
+    public function initialize(CoreBootstrap $bootstrap)
     {
-		$this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
-	}
+        $this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
+    }
 
 }

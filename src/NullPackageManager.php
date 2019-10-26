@@ -14,12 +14,12 @@ namespace FluidTYPO3\Development;
 class NullPackageManager extends AbstractNullPackageManager
 {
 
-	/**
-	 * @return void
-	 */
-	public function initialize()
+    /**
+     * @return void
+     */
+    public function initialize()
     {
-		$this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
-	}
+        $this->virtualPackages = Bootstrap::getInstance()->getVirtualExtensionKeys();
+    }
 
 }

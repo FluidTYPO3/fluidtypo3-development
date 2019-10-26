@@ -18,47 +18,47 @@ use TYPO3\CMS\Core\Package\PackageInterface;
 abstract class AbstractNullPackageManager extends FailsafePackageManager
 {
 
-	/**
-	 * Array of packages whose classes are loaded but do
-	 * not (necessarily) report as installed by TYPO3.
-	 *
-	 * @var array
-	 */
-	protected $virtualPackages = array();
+    /**
+     * Array of packages whose classes are loaded but do
+     * not (necessarily) report as installed by TYPO3.
+     *
+     * @var array
+     */
+    protected $virtualPackages = array();
 
-	/**
-	 * @var array
-	 */
-	protected $packageStatesConfiguration = array(
-		'packages' => array()
-	);
+    /**
+     * @var array
+     */
+    protected $packageStatesConfiguration = array(
+        'packages' => array()
+    );
 
-	/**
-	 * @param Bootstrap $bootstrap
-	 * @return void
-	 */
-	public function setBootstrap(Bootstrap $bootstrap)
+    /**
+     * @param Bootstrap $bootstrap
+     * @return void
+     */
+    public function setBootstrap(Bootstrap $bootstrap)
     {
-		$this->bootstrap = $bootstrap;
-	}
+        $this->bootstrap = $bootstrap;
+    }
 
-	/**
-	 * @param string $packageKey
-	 * @return boolean
-	 */
-	public function isPackageActive($packageKey)
+    /**
+     * @param string $packageKey
+     * @return boolean
+     */
+    public function isPackageActive($packageKey)
     {
-		return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
-	}
+        return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
+    }
 
-	/**
-	 * @param string $packageKey
-	 * @return boolean
-	 */
-	public function isPackageAvailable($packageKey)
+    /**
+     * @param string $packageKey
+     * @return boolean
+     */
+    public function isPackageAvailable($packageKey)
     {
-		return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
-	}
+        return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
+    }
 
     public function getActivePackages()
     {
@@ -66,11 +66,11 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
         return array_combine($keys, array_map([$this, 'getPackage'], $keys));
     }
 
-	/**
-	 * @param string $packageKey
-	 * @return PackageInterface
-	 */
-	public function getPackage($packageKey)
+    /**
+     * @param string $packageKey
+     * @return PackageInterface
+     */
+    public function getPackage($packageKey)
     {
         $pwd = trim(shell_exec('pwd'));
         $json = json_decode(file_get_contents($pwd . '/composer.json'), true);
@@ -81,15 +81,15 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
             $path = realpath($folder . '/typo3conf/ext/' . $packageKey) . '/';
         } elseif (file_exists($folder . '/typo3/sysext/' . $packageKey . '/ext_emconf.php')) {
             $path = realpath($folder . '/typo3/sysext/' . $packageKey) . '/';
-		} else {
+        } else {
             $path = realpath(__DIR__ . '/../../' . $packageKey) . '/';
             if (FALSE === file_exists($path . 'ext_emconf.php')) {
                 $path = realpath(__DIR__ . '/../../../../') . '/';
             }
         }
-		$package = new Package($this, $packageKey, $path, $path . 'Classes/');
-		return $package;
-	}
+        $package = new Package($this, $packageKey, $path, $path . 'Classes/');
+        return $package;
+    }
 
     /**
      * @return array
