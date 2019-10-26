@@ -60,6 +60,12 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
 		return in_array($packageKey, $this->getLoadedPackageKeys()) || in_array($packageKey, $this->virtualPackages);
 	}
 
+    public function getActivePackages()
+    {
+        $keys = $this->getLoadedPackageKeys();
+        return array_combine($keys, array_map([$this, 'getPackage'], $keys));
+    }
+
 	/**
 	 * @param string $packageKey
 	 * @return PackageInterface
@@ -85,33 +91,43 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
 		return $package;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getLoadedPackageKeys()
+    /**
+     * @return array
+     */
+    protected function getLoadedPackageKeys()
     {
-		$root = trim(shell_exec('pwd'));
-		if (!file_exists($root . '/composer.json')) {
-			$root = realpath(__DIR__ . '/../');
-		}
-		$composerFile = $root . '/composer.json';
-		$parsed = json_decode(file_get_contents($composerFile), true);
-		if ($parsed['name'] ?? false) {
-            $key = substr($parsed['name'], strpos($parsed['name'], '/') + 1);
+        $root = trim(shell_exec('pwd'));
+        if (!file_exists($root . '/composer.json')) {
+            $root = realpath(__DIR__ . '/../');
+        }
+        $composerFile = $root . '/composer.json';
+        $parsed = json_decode(file_get_contents($composerFile), true);
+        if ($parsed['name'] ?? false) {
+            $key = $this->getExtensionKeyFromComposerName($parsed['name']);
             $loaded = [$key];
         } else {
-		    $loaded = [];
+            $loaded = [];
         }
-		if (isset($parsed['require-dev'])) {
-			foreach (array_keys($parsed['require-dev']) as $packageName) {
-				$loaded[] = substr($packageName, strpos($packageName, '/') + 1);
-			}
-		}
-		if (isset($parsed['require'])) {
-			foreach (array_keys($parsed['require']) as $packageName) {
-				$loaded[] = substr($packageName, strpos($packageName, '/') + 1);
-			}
-		}
-		return $loaded;
-	}
+        if (isset($parsed['require-dev'])) {
+            foreach (array_keys($parsed['require-dev']) as $packageName) {
+                $loaded[] = $this->getExtensionKeyFromComposerName($packageName);
+            }
+        }
+        if (isset($parsed['require'])) {
+            foreach (array_keys($parsed['require']) as $packageName) {
+                $loaded[] = $this->getExtensionKeyFromComposerName($packageName);
+            }
+        }
+        return $loaded;
+    }
+
+    protected function getExtensionKeyFromComposerName(string $key)
+    {
+        if (strncmp($key, 'typo3/cms-', 10) === 0) {
+            $key = substr($key, 10);
+        } elseif ($position = strpos($key, '/')) {
+            $key = substr($key, $position + 1);
+        }
+        return $key;
+    }
 }

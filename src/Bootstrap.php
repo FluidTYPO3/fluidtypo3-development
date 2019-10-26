@@ -76,40 +76,60 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap {
 		return $this;
 	}
 
-	/**
-	 * @param ClassLoader $classLoader
-	 * @param array $cacheDefinitions
-	 * @param array $virtualExtensionKeys
-	 * @return Bootstrap
-	 */
-	public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
-	    $packageManagerClassName = NullPackageManager::class;
-	    $packageManagerClassReflection = new \ReflectionClass(PackageManager::class);
-	    $initializeMethodReflection = $packageManagerClassReflection->getMethod('initialize');
-	    if ($initializeMethodReflection->getNumberOfRequiredParameters() > 0) {
-	        $packageManagerClassName = NullLegacyPackageManager::class;
-        }
-		$instance = static::getInstance();
+    /**
+     * @param ClassLoader $classLoader
+     * @param array $cacheDefinitions
+     * @param array $virtualExtensionKeys
+     * @return Bootstrap
+     */
+    public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array()) {
+
+        $instance = static::getInstance();
         $instance->applicationContext = new ApplicationContext('Testing');
-		if (method_exists($instance, 'setRequestType')) {
-			$instance->setRequestType(1);
-		}
-		$instance->initializeClassLoader($classLoader);
-		$instance->initializeConstants()
-			->initializeClassLoader($classLoader)
-			->setVirtualExtensionKeys($virtualExtensionKeys)
-			->initializeConfiguration()
-			->initializeCaches($cacheDefinitions)
+        if (method_exists($instance, 'setRequestType')) {
+            $instance->setRequestType(1);
+        }
+        $instance->initializeClassLoader($classLoader);
+        $instance->initializeConstants()
+            ->initializeClassLoader($classLoader)
+            ->setVirtualExtensionKeys($virtualExtensionKeys)
+            ->initializeConfiguration()
+            ->initializeCaches($cacheDefinitions)
             ->initializeCachingFramework()
             ->defineLoggingAndExceptionConstants()
-            ->baseSetup(0)
-            ->initializePackageManagement($packageManagerClassName)
-            ->initializeObjectContainer()
-			->initializeReplacementImplementations()
-        ;
+            ->baseSetup(0);
+        if (($packageManagerClassName = static::getPackageManagerClassName()) === NullLegacyPackageManager::class) {
+            $instance->initializePackageManagement($packageManagerClassName);
+        } else {
+            $packageManager = static::createPackageManager($packageManagerClassName, GeneralUtility::makeInstance(CacheManager::class)->getCache('cache_core'));
+            GeneralUtility::setSingletonInstance(PackageManager::class, $packageManager);
+            ExtensionManagementUtility::setPackageManager($packageManager);
+        }
+        $instance->initializeObjectContainer()->initializeReplacementImplementations();
+        return $instance;
+    }
 
-		return $instance;
-	}
+    protected static function getPackageManagerClassName()
+    {
+        $packageManagerClassName = NullPackageManager::class;
+        $packageManagerClassReflection = new \ReflectionClass(PackageManager::class);
+        $initializeMethodReflection = $packageManagerClassReflection->getMethod('initialize');
+        if ($initializeMethodReflection->getNumberOfRequiredParameters() > 0) {
+            $packageManagerClassName = NullLegacyPackageManager::class;
+        }
+        return $packageManagerClassName;
+    }
+
+    public static function createPackageManager($packageManagerClassName, FrontendInterface $coreCache): PackageManager
+    {
+        $packageManagerClassName = static::getPackageManagerClassName();
+        $dependencyOrderingService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Service\DependencyOrderingService::class);
+        /** @var \TYPO3\CMS\Core\Package\PackageManager $packageManager */
+        $packageManager = new $packageManagerClassName($dependencyOrderingService);
+        $packageManager->injectCoreCache($coreCache);
+        $packageManager->initialize();
+        return $packageManager;
+    }
 
     /**
      * @return $this
