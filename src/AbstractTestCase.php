@@ -8,31 +8,17 @@ namespace FluidTYPO3\Development;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 /**
  * AbstractTestCase
  */
-abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
+abstract class AbstractTestCase extends TestCase
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
-     * @param string $name
-     * @param array $data
-     * @param string $dataName
-     */
-    public function __construct($name = null, array $data = array(), $dataName = '')
-    {
-        $objectManager = GeneralUtility::makeInstance('TYPO3\CMS\Extbase\Object\ObjectManager');
-        $this->objectManager = clone $objectManager;
-        parent::__construct($name, $data, $dataName);
-    }
-
     /**
      * Helper function to call protected or private methods
      *
@@ -85,5 +71,20 @@ abstract class AbstractTestCase extends \PHPUnit_Framework_TestCase
     {
         $instance = $this->objectManager->get($this->createInstanceClassName());
         return $instance;
+    }
+
+    public static function assertAttributeSame($expected, string $attribute, object $object, $message = ''): void
+    {
+        self::assertSame($expected, ProtectedAccess::getProperty($object, $attribute), $message);
+    }
+
+    public static function assertAttributeEquals($expected, string $attribute, object $object, $message = ''): void
+    {
+        self::assertEquals($expected, ProtectedAccess::getProperty($object, $attribute), $message);
+    }
+
+    public static function assertAttributeInstanceOf($expectedClass, string $attribute, object $object, $message = ''): void
+    {
+        self::assertInstanceOf($expectedClass, ProtectedAccess::getProperty($object, $attribute), $message);
     }
 }

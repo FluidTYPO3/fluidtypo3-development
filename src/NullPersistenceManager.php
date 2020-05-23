@@ -20,7 +20,6 @@ class NullPersistenceManager extends PersistenceManager {
      */
     public function __construct() {
         $this->backend = new NullPersistenceBackend();
-        parent::__construct();
     }
 
     /**

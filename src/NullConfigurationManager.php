@@ -17,7 +17,8 @@ class NullConfigurationManager implements ConfigurationManagerInterface {
      * @param string $pluginName
      * @return array
      */
-    public function getConfiguration($type, $extensionName = NULL, $pluginName = NULL) {
+    public function getConfiguration(string $type, ?string $extensionName = NULL, ?string $pluginName = NULL): array
+    {
         return $this->getTypoScriptSetup();
     }
 
@@ -25,14 +26,16 @@ class NullConfigurationManager implements ConfigurationManagerInterface {
      * @param string $featureName
      * @return boolean
      */
-    public function isFeatureEnabled($featureName) {
+    public function isFeatureEnabled($featureName): bool
+    {
         TRUE;
     }
 
     /**
      * @return ContentObjectRenderer
      */
-    public function getContentObject() {
+    public function getContentObject(): ContentObjectRenderer
+    {
         return new ContentObjectRenderer();
     }
 
@@ -40,31 +43,34 @@ class NullConfigurationManager implements ConfigurationManagerInterface {
      * @param array $frameworkConfiguration
      * @return array
      */
-    protected function getContextSpecificFrameworkConfiguration(array $frameworkConfiguration) {
-        return array();
+    protected function getContextSpecificFrameworkConfiguration(array $frameworkConfiguration)
+    {
+        return [];
     }
 
     /**
      * @return array
      */
-    public function getTypoScriptSetup() {
-        return array(
-            'config' => array(
-                'tx_extbase' => array(
-                    'features' => array(
+    public function getTypoScriptSetup()
+    {
+        return [
+            'config' => [
+                'tx_extbase' => [
+                    'features' => [
                         'rewrittenPropertyMapper' => TRUE
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**
      * @param string $extensionName
      * @param string|NULL $pluginName
      */
-    protected function getPluginConfiguration($extensionName, $pluginName = null) {
-        return array();
+    protected function getPluginConfiguration($extensionName, $pluginName = null)
+    {
+        return [];
     }
 
     /**
@@ -72,8 +78,9 @@ class NullConfigurationManager implements ConfigurationManagerInterface {
      * @param string $pluginName
      * @return array
      */
-    protected function getSwitchableControllerActions($extensionName, $pluginName) {
-        return array();
+    protected function getSwitchableControllerActions($extensionName, $pluginName)
+    {
+        return [];
     }
 
     /**
@@ -81,22 +88,25 @@ class NullConfigurationManager implements ConfigurationManagerInterface {
      * @param integer $recursionDepth
      * @return array
      */
-    protected function getRecursiveStoragePids($storagePid, $recursionDepth = 0) {
-        return array();
+    protected function getRecursiveStoragePids($storagePid, $recursionDepth = 0)
+    {
+        return [];
     }
 
     /**
      * @param ContentObjectRenderer|NULL $contentObject
      * @return void
      */
-    public function setContentObject(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObject = NULL) {
+    public function setContentObject(\TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer $contentObject = NULL): void
+    {
     }
 
     /**
      * @param array $configuration
      * @return void
      */
-    public function setConfiguration(array $configuration = array()) {
+    public function setConfiguration(array $configuration = []): void
+    {
     }
 
 }

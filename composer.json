@@ -29,8 +29,8 @@
         "typo3/cms-tstemplate": "^8||^9||^10||dev-master",
         "typo3/cms-workspaces": "^8||^9||^10||dev-master",
         "squizlabs/php_codesniffer": "*",
-        "phpunit/phpunit": "^5.7",
-        "mikey179/vfsstream": "* ",
+        "phpunit/phpunit": "^5.7|^9",
+        "mikey179/vfsstream": "*",
         "satooshi/php-coveralls": "*",
         "namelesscoder/typo3-repository-client": "*"
     },
