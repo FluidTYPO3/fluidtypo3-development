@@ -11,13 +11,13 @@ namespace FluidTYPO3\Development;
 use TYPO3\CMS\Core\Package\FailsafePackageManager;
 use TYPO3\CMS\Core\Package\Package;
 use TYPO3\CMS\Core\Package\PackageInterface;
+use TYPO3\CMS\Core\Package\Exception\InvalidPackageManifestException;
 
 /**
  * Class AbstractNullPackageManager
  */
 abstract class AbstractNullPackageManager extends FailsafePackageManager
 {
-
     /**
      * Array of packages whose classes are loaded but do
      * not (necessarily) report as installed by TYPO3.
@@ -63,7 +63,16 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
     public function getActivePackages()
     {
         $keys = $this->getLoadedPackageKeys();
-        return array_combine($keys, array_map([$this, 'getPackage'], $keys));
+        if (empty($this->activePackages)) {
+            foreach ($keys as $packageKey) {
+                try {
+                    $this->activePackages[$packageKey] = $this->getPackage($packageKey);
+                } catch (InvalidPackageManifestException $exception) {
+                    continue;
+                }
+            }
+        }
+        return array_merge($this->activePackages, $this->runtimeActivatedPackages);
     }
 
     /**
@@ -75,7 +84,9 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
         $pwd = trim(shell_exec('pwd'));
         $json = json_decode(file_get_contents($pwd . '/composer.json'), true);
         $folder = $pwd . (($json['extra']['typo3/cms']['web-dir'] ?? false) ? '/' . $json['extra']['typo3/cms']['web-dir'] . '/' : '');
-        if (file_exists($folder . '/public/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
+        if (file_exists($folder . '/public/typo3/sysext/' . $packageKey . '/ext_emconf.php')) {
+            $path = realpath($folder . '/public/typo3/sysext/' . $packageKey) . '/';
+        } elseif (file_exists($folder . '/public/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
             $path = realpath($folder . '/public/typo3conf/ext/' . $packageKey) . '/';
         } elseif (file_exists($folder . '/typo3conf/ext/' . $packageKey . '/ext_emconf.php')) {
             $path = realpath($folder . '/typo3conf/ext/' . $packageKey) . '/';
@@ -102,6 +113,7 @@ abstract class AbstractNullPackageManager extends FailsafePackageManager
         }
         $composerFile = $root . '/composer.json';
         $parsed = json_decode(file_get_contents($composerFile), true);
+
         if ($parsed['name'] ?? false) {
             $key = $this->getExtensionKeyFromComposerName($parsed['name']);
             $loaded = [$key];

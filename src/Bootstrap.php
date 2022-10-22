@@ -17,11 +17,15 @@ use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\DependencyInjection\ContainerBuilder;
+use TYPO3\CMS\Core\Localization\Parser\XliffParser;
 use TYPO3\CMS\Core\Log\LogManager;
+use TYPO3\CMS\Core\Package\DependencyResolver;
+use TYPO3\CMS\Core\Package\FailsafePackageManager;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\ServiceProvider;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\StringUtility;
 use TYPO3\CMS\Extbase\Object\Container\Container;
 use Composer\Autoload\ClassLoader;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -112,33 +116,46 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap
      */
     public static function initialize(ClassLoader $classLoader, array $cacheDefinitions, array $virtualExtensionKeys = array())
     {
+        $requestId = substr(md5(StringUtility::getUniqueId()), 0, 13);
+
         $instance = static::getInstance();
         $instance->applicationContext = new ApplicationContext('Testing');
-        if (class_exists(SystemEnvironmentBuilder::class)) {
+        if (method_exists($instance, 'setRequestType')) {
+            $instance->setRequestType(1);
+        } elseif (class_exists(SystemEnvironmentBuilder::class) && defined(SystemEnvironmentBuilder::class . '::REQUESTTYPE_CLI')) {
             SystemEnvironmentBuilder::run(0, SystemEnvironmentBuilder::REQUESTTYPE_CLI);
         } else {
-            if (method_exists($instance, 'setRequestType')) {
-                $instance->setRequestType(1);
-            }
-            $instance->initializeClassLoader($classLoader);
-            $instance->initializeConstants();
+
         }
         $instance->initializeClassLoader($classLoader);
+        $instance->initializeConstants();
         $instance->setVirtualExtensionKeys($virtualExtensionKeys);
         $instance->initializeConfiguration();
         $instance->initializeCaches($cacheDefinitions);
 
+        $instance->initializeObjectContainer()->initializeReplacementImplementations();
+
         $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
+        $cacheManager->setCacheConfigurations($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']);
         if (method_exists($instance, 'initializeCachingFramework')) {
             $instance->initializeCachingFramework();
-        } else {
-            $cacheManager->setCacheConfigurations($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']);
+        }
+
+        if (($packageManagerClassName = static::getPackageManagerClassName()) === NullLegacyPackageManager::class) {
+            $instance->initializePackageManagement($packageManagerClassName);
+            $packageManager = static::createPackageManager(
+                $packageManagerClassName,
+                GeneralUtility::makeInstance(CacheManager::class)->getCache('cache_core')
+            );
+            GeneralUtility::setSingletonInstance(PackageManager::class, $packageManager);
+            ExtensionManagementUtility::setPackageManager($packageManager);
         }
 
         $GLOBALS['TYPO3_CONF_VARS']['LOG'] = [];
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors'] = [];
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'] = [];
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'] = [];
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale'] = 'en_US.UTF-8';
         $GLOBALS['TYPO3_CONF_VARS']['FE']['ContentObjects'] = [];
         $GLOBALS['TYPO3_CONF_VARS']['BE']['cookieName'] = '';
         $GLOBALS['TYPO3_CONF_VARS']['BE']['checkStoredRecords'] = true;
@@ -154,34 +171,48 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap
         $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPermissions'] = [];
         $GLOBALS['TYPO3_CONF_VARS']['BE']['lockRootPath'] = '';
 
+        if (method_exists(static::class, 'createConfigurationManager')) {
+            $configurationManager = static::createConfigurationManager();
+            if (!static::checkIfEssentialConfigurationExists($configurationManager)) {
+                $failsafe = true;
+            }
+            $configurationManager->writeLocalConfiguration($GLOBALS['TYPO3_CONF_VARS']);
+            static::populateLocalConfiguration($configurationManager);
+        }
+
         $instance->defineLoggingAndExceptionConstants();
         $instance->baseSetup(0);
+
+        /** @var NullPackageManager $packageManager */
         $packageManager = static::createPackageManager(
             NullPackageManager::class,
             $cacheManager->getCache(
                 $cacheManager->hasCache('core') ? 'core' : 'cache_core'
             )
         );
+
+        $packageManager->initialize();
+
         GeneralUtility::setSingletonInstance(PackageManager::class, $packageManager);
         ExtensionManagementUtility::setPackageManager($packageManager);
 
+        $logManager = new LogManager($requestId);
+
         $container = null;
         if (class_exists(ContainerBuilder::class)) {
-            $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale'] = 'en_US.UTF-8';
-
             $bootState = new \stdClass();
             $bootState->done = false;
             $bootState->cacheDisabled = true;
 
             $reflectionService = GeneralUtility::makeInstance(ReflectionService::class);
 
-            $dependencyInjectionContainerCache = static::createCache('di', true);
+            $dependencyInjectionContainerCache = static::createCache('di', false);
             $coreCache = static::createCache('core', true);
             $assetsCache = static::createCache('assets', true);
             $builder = new ContainerBuilder([
                 ClassLoader::class => $classLoader,
                 ApplicationContext::class => Environment::getContext(),
-                LogManager::class => GeneralUtility::makeInstance(LogManager::class),
+                LogManager::class => $logManager,
                 'cache.di' => $dependencyInjectionContainerCache,
                 'cache.core' => $coreCache,
                 'cache.assets' => $assetsCache,
@@ -191,16 +222,23 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap
                 'boot.state' => $bootState,
             ]);
 
-            $container = $builder->createDependencyInjectionContainer($packageManager, $dependencyInjectionContainerCache, true);
+            $container = $builder->createDependencyInjectionContainer($packageManager, $dependencyInjectionContainerCache, false);
 
             // Push the container to GeneralUtility as we want to make sure its
             // makeInstance() method creates classes using the container from now on.
             GeneralUtility::setContainer($container);
 
             $instance->setContainer($container);
+
+            $bootState->done = true;
         }
 
-        $instance->initializeObjectContainer($container)->initializeReplacementImplementations();
+        $instance->initializeObjectContainer($container);
+
+        GeneralUtility::setSingletonInstance(CacheManager::class, $cacheManager);
+        GeneralUtility::removeSingletonInstance(PackageManager::class, $packageManager);
+        GeneralUtility::removeSingletonInstance(CacheManager::class, $cacheManager);
+
         return $instance;
     }
 
@@ -235,7 +273,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap
      */
     public function initializeObjectContainer(?ContainerInterface $container = null)
     {
-        $container = GeneralUtility::makeInstance('TYPO3\\CMS\\Extbase\\Object\\Container\\Container', $container);
+        $container = GeneralUtility::makeInstance(Container::class, $container);
         $this->setObjectContainer($container);
         return $this;
     }
@@ -257,7 +295,7 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap
     public function initializeConfiguration() {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['trustedHostsPattern'] = '.?';
         $GLOBALS['TYPO3_CONF_VARS']['FE']['cacheHash'] = array();
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['lang']['parser']['xlf'] = 'TYPO3\\CMS\\Core\\Localization\\Parser\\XliffParser';
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['lang']['parser']['xlf'] = XliffParser::class;
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_DLOG'] = FALSE;
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_exceptionDLOG'] = FALSE;
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['enable_errorDLOG'] = FALSE;
@@ -323,4 +361,26 @@ class Bootstrap extends \TYPO3\CMS\Core\Core\Bootstrap
         return $this;
     }
 
+    protected static function getPackageManagerClassName()
+    {
+        $packageManagerClassName = NullPackageManager::class;
+        $packageManagerClassReflection = new \ReflectionClass(PackageManager::class);
+        $initializeMethodReflection = $packageManagerClassReflection->getMethod('initialize');
+        if ($initializeMethodReflection->getNumberOfRequiredParameters() > 0) {
+            $packageManagerClassName = NullLegacyPackageManager::class;
+        }
+        return $packageManagerClassName;
+    }
+
+    public static function createPackageManager($packageManagerClassName, FrontendInterface $coreCache): PackageManager
+    {
+        $packageManagerClassName = static::getPackageManagerClassName();
+        $dependencyOrderingService = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Service\DependencyOrderingService::class);
+        /** @var \TYPO3\CMS\Core\Package\PackageManager $packageManager */
+        $packageManager = new $packageManagerClassName($dependencyOrderingService);
+        $packageManager->injectCoreCache($coreCache);
+        $packageManager->initialize();
+
+        return $packageManager;
+    }
 }
