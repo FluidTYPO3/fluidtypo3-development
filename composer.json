@@ -10,7 +10,7 @@
         }
     ],
     "bin": [
-        "bin/setversion'",
+        "bin/setversion",
         "bin/release",
         "bin/changelog"
     ]
