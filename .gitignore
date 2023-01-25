@@ -1,11 +1,3 @@
 vendor
 .idea
-bin/rmversion
-bin/setversion
-bin/upload
-bin/phpcbf
-bin/phpcs
-bin/release.php
-bin/coveralls
-bin/phpunit
 composer.lock
