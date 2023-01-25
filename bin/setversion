@@ -38,7 +38,7 @@ class Versioner
             throw new \RuntimeException('Extension configuration file ' . $filename . ' does not exist');
         }
         include $filename;
-        return resset($EM_CONF);
+        return reset($EM_CONF);
     }
 
     protected function writeExtensionConfigurationFile(string $filename, string $version, string $stability): bool
