@@ -1,6 +1,6 @@
 {
     "name": "fluidtypo3/development",
-    "description": "FluidTYPO3 development helpers - test runners, coding standards sniffing, local git hook scripts",
+    "description": "FluidTYPO3 development helpers",
     "license": "LGPL-3.0-or-later",
     "keywords": ["php", "git", "fluidtypo3", "typo3", "helper"],
     "authors": [
@@ -9,34 +9,8 @@
             "email": "claus@namelesscoder.net"
         }
     ],
-    "autoload": {
-        "psr-4": {
-            "FluidTYPO3\\Development\\": "src/"
-        }
-    },
-    "require": {
-        "typo3/cms-core": "^8||^9||^10||dev-master",
-        "typo3/cms-info": "^8||^9||^10||dev-master",
-        "typo3/cms-beuser": "^8||^9||^10||dev-master",
-        "typo3/cms-extbase": "^8||^9||^10||dev-master",
-        "typo3/cms-fluid": "^8||^9||^10||dev-master",
-        "typo3/cms-backend": "^8||^9||^10||dev-master",
-        "typo3/cms-install": "^8||^9||^10||dev-master",
-        "typo3/cms-setup": "^8||^9||^10||dev-master",
-        "typo3/cms-filelist": "^8||^9||^10||dev-master",
-        "typo3/cms-recordlist": "^8||^9||^10||dev-master",
-        "typo3/cms-scheduler": "^8||^9||^10||dev-master",
-        "typo3/cms-tstemplate": "^8||^9||^10||dev-master",
-        "typo3/cms-workspaces": "^8||^9||^10||dev-master",
-        "squizlabs/php_codesniffer": "*",
-        "phpunit/phpunit": "^5.7|^9",
-        "mikey179/vfsstream": "*",
-        "satooshi/php-coveralls": "*",
-        "namelesscoder/typo3-repository-client": "*"
-    },
     "bin": [
-        "bin/generateschema-typo3",
-        "bin/stage",
+        "bin/setversion'",
         "bin/release",
         "bin/changelog"
     ]
