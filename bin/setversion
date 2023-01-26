@@ -45,9 +45,9 @@ class Versioner
     {
         $configuration = $this->readExtensionConfigurationFile($filename);
         $extensionKey = key($configuration);
-        $configuration[self::PARAMETER_VERSION] = $version;
-        $configuration[self::PARAMETER_STABILITY] = $stability;
-        $contents = '<' . '?php' . PHP_EOL . '$EM_CONF[\'' . $extensionKey . '\'] = ' . var_export($configuration, true) . ';' . PHP_EOL;
+        $configuration[$extensionKey][self::PARAMETER_VERSION] = $version;
+        $configuration[$extensionKey][self::PARAMETER_STABILITY] = $stability;
+        $contents = '<' . '?php' . PHP_EOL . '$EM_CONF[\'' . $extensionKey . '\'] = ' . var_export($configuration[$extensionKey], true) . ';' . PHP_EOL;
         return file_put_contents($filename, $contents);
     }
 }
