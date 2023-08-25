@@ -1,66 +1,58 @@
 #!/usr/bin/env php
 <?php
 
-/**
- * @param string $command
- * @param boolean $expectsEmptyOutput
- * @param string|NULL $errorMessage
- * @return array
- */
-function commandOrFail($command, $expectsEmptyOutput = FALSE, $errorMessage = NULL) {
-    $code = 0;
-    $output = array();
-    exec($command, $output, $code);
-    if (0 < $code || (TRUE === $expectsEmptyOutput && 0 < count($output))) {
-        $message = $errorMessage ? ' ! ' . $errorMessage : ' ! Command failed! ' . $command;
-        if (TRUE === $expectsEmptyOutput) {
-            $message .= PHP_EOL;
-            $message .= ' ! No output was expected from command but output occurred:';
-            $message .= implode(PHP_EOL, $output);
-        }
-        exitWithMessage($message, (TRUE === $expectsEmptyOutput && 0 === $code) ? 1 : $code);
-    }
-    return $output;
-}
-
-/**
- * @param string $message
- * @param integer $code
- * @return void
- */
-function exitWithMessage($message, $code = 0) {
-    echo $message;
-    echo PHP_EOL;
-    exit($code);
-}
-
-/**
- * @param string $message
- * @param string $mark
- */
-function message($message, $mark = '✓') {
-    echo sprintf(' %s ' . $message, $mark);
-    echo PHP_EOL;
-}
+require __DIR__ . '/../src/functions.php';
 
 // Declare variables used by script below
 $repository = pathinfo(trim(shell_exec('pwd')), PATHINFO_FILENAME);
-$delay = 10;
-$version = $argv[1];
-$since = $declaredSince = isset($argv[2]) ? strtotime($argv[2]) : 0;
-$until = isset($argv[3]) ? strtotime($argv[3]) : 0;
-if (empty($version)) {
-    exitWithMessage('Command requires version as first argument');
-}
-if (empty($until)) {
-    $until = time();
-}
+$logFilesDir = 'Documentation/Changelog';
+$dry = in_array('dry', $argv, true);
+$version = determineVersionFromArguments($argv);
+
+[$since, $lastVersion] = (function(array $arguments, string $logFilesDir): array {
+    $dateFormatMatch = '\\d{4}\\/\\d{2}\\/\\d{2}';
+    $timeFormatMatch = '\\d{2}\\:\\d{2}\\:\\d{2}';
+    $existingFiles = glob($logFilesDir . '/*.md');
+    $lastVersion = '1.0.0';
+    $declaredSince = null;
+
+    foreach ($arguments as $argument) {
+        if (preg_match('/^' . $dateFormatMatch . ' ' . $timeFormatMatch . '$/', $argument)) {
+            $declaredSince = strtotime($argument);
+        }
+    }
+
+    // Detect the last created change log, but only if "since" was not manually specified as second argument to command
+    if (!$declaredSince) {
+        $since = 0;
+        foreach ($existingFiles as $existingFile) {
+            $fp = fopen($existingFile, 'r');
+            $firstFourty = fread($fp, 40);
+            fclose($fp);
+
+            $matches = [];
+            preg_match('/\\(' . $dateFormatMatch . '\\)/', $firstFourty, $matches);
+            $dateStamp = trim($matches[0], '()');
+            $created = strtotime($dateStamp);
+
+            if ($created > $since) {
+                $since = $created;
+                $lastVersion = pathinfo($existingFile, PATHINFO_FILENAME);
+            }
+        }
+    }
+
+    return [$since, $lastVersion];
+})($argv, $logFilesDir);
 
 message(sprintf('Writing change log for %s version %s', $repository, $version));
 
-$logFilesDir = 'Documentation/Changelog';
 if (!is_dir($logFilesDir)) {
-    mkdir($logFilesDir, 0777, TRUE);
+    if ($dry) {
+        message('Would create directory: ' . $logFilesDir);
+    } else {
+        mkdir($logFilesDir, 0777, TRUE);
+    }
 }
 
 $changelogFile = $logFilesDir . '/' . $version . '.md';
@@ -68,49 +60,20 @@ if (file_exists($changelogFile)) {
     exitWithMessage(sprintf(' x Version %s already has a change log - aborting', $version), 1);
 }
 
-$existingFiles = glob($logFilesDir . '/*.md');
 
-$lastVersion = '1.0.0';
-
-// Detect the last created change log, but only if "since" was not manually specified as second argument to command
-if (!$declaredSince) {
-    foreach ($existingFiles as $existingFile) {
-        $fp = fopen($existingFile, 'r');
-        $firstFourty = fread($fp, 40);
-        fclose($fp);
-
-        $matches = [];
-        preg_match('/\\([0-9]{4}\\/[0-9]{2}\\/[0-9]{2}\\)/', $firstFourty, $matches);
-        $dateStamp = trim($matches[0], '()');
-        $created = strtotime($dateStamp);
-
-        if ($created > $since) {
-            $since = $created;
-            $lastVersion = pathinfo($existingFile, PATHINFO_FILENAME);
-        }
-    }
-}
-
-$since = date('Y/m/d', $since);
-$until = date('Y/m/d', $until);
+$since = date('Y/m/d H:i:s', $since);
+$until = date('Y/m/d H:i:s');
 
 $lines = commandOrFail(
     sprintf(
-        'git log --since="%s" --until="%s" --abbrev-commit --pretty=\'%%ad %%s (Commit %%h by %%an)\' --date=short | egrep \'(\[FEATURE|BUGFIX|REMOVAL\])+\' 2> /dev/null',
+        'git log --since="%s" --abbrev-commit --pretty=\'%%ad %%s (Commit %%h by %%an)\' --date=short | egrep \'(\[FEATURE|BUGFIX|REMOVAL\])+\' 2> /dev/null',
         $since,
-        $until,
-        $changelogFile
-    ),
-    FALSE
+        $until
+    )
 );
 
-if ($until) {
-    $date = $until;
-} else {
-    $date = date('Y/m/d');
-}
 $changelog = '* ' . implode(PHP_EOL . '* ', $lines);
-$changelogHeader = sprintf('## Release: %s (%s)' . PHP_EOL . PHP_EOL, $version, $date);
+$changelogHeader = sprintf('## Release: %s (%s)' . PHP_EOL . PHP_EOL, $version, $until);
 if (empty($lines)) {
     $changelog = $changelogHeader . sprintf('**%s is a maintenance release with no functional changes.**' . PHP_EOL . PHP_EOL, $version);
 } else {
@@ -130,12 +93,19 @@ if (!empty($lines)) {
     $changelog .= 'infrastructure-only and not relevant to end users. The full list includes these!*';
     $changelog .= PHP_EOL . PHP_EOL;
 }
-file_put_contents($changelogFile, $changelog);
 
+if ($dry) {
+    message('Would write file contents to ' . $changelogFile);
+    message('');
+    message($changelog);
+    message('');
+} else {
+    file_put_contents($changelogFile, $changelog);
+}
 
 $existingFiles = glob($logFilesDir . '/*.md');
 
-usort($existingFiles, function ($a, $b) {
+usort($existingFiles, function (string $a, string $b) {
     $a = pathinfo($a, PATHINFO_FILENAME);
     $b = pathinfo($b, PATHINFO_FILENAME);
     $a = explode('.', $a);
@@ -143,7 +113,7 @@ usort($existingFiles, function ($a, $b) {
     return $a[0] > $b[0] || ($a[0] >= $b[0] && $a[1] > $b[1]) || ($a[0] >= $b[0] && $a[1] >= $b[1] && $a[2] > $b[2]);
 });
 
-$mainChangelog = sprintf('Latest release: %s (%s)', $version, $date);
+$mainChangelog = sprintf('Latest release: %s (%s)', $version, $until);
 $mainChangelog .= PHP_EOL . PHP_EOL;
 $mainChangelog .= 'All previous release change logs:' . PHP_EOL . PHP_EOL;
 
@@ -166,7 +136,7 @@ foreach ($existingFiles as $existingFile) {
     fclose($fp);
 
     $matches = [];
-    preg_match('/\\([0-9]{4}\\/[0-9]{2}\\/[0-9]{2}\\)/', $firstFourty, $matches);
+    preg_match('/\\([0-9]{4}\\/[0-9]{2}\\/[0-9]{2}(\\s{1}\\d{2}\\:\\d{2}\\:\\d{2})?\\)/', $firstFourty, $matches);
     $dateStamp = trim($matches[0], '()');
     $created = strtotime($dateStamp);
 
@@ -183,4 +153,11 @@ foreach ($existingFiles as $existingFile) {
 
 $mainChangelog .= implode(PHP_EOL, $logs);
 
-file_put_contents('CHANGELOG.md', $mainChangelog);
+if ($dry) {
+    message('Would write main CHANGELOG file:');
+    message('');
+    message($mainChangelog);
+    message('');
+} else {
+    file_put_contents('CHANGELOG.md', $mainChangelog);
+}

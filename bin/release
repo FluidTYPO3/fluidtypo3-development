@@ -1,61 +1,20 @@
 #!/usr/bin/env php
 <?php
 
+require __DIR__ . '/../src/functions.php';
+
 define('SOURCE_BRANCH', 'development');
 define('TARGET_BRANCH', 'master');
 
-function commandOrFail(string $command, bool $expectsEmptyOutput = false, ?string $failureReason = null): array
-{
-	$code = 0;
-	$output = [];
-	exec($command, $output, $code);
-	if (0 < $code || ($expectsEmptyOutput && 0 < count($output))) {
-		$message = ' ! Command failed! ' . $command;
-        if ($failureReason) {
-            $message .= PHP_EOL;
-            $message .= 'Reason for failure: ' . $failureReason;
-        }
-		if ($expectsEmptyOutput) {
-			$message .= PHP_EOL;
-			$message .= ' ! No output was expected from command but output occurred:';
-			$message .= implode(PHP_EOL, $output);
-		}
-		exitWithMessage($message, ($expectsEmptyOutput && 0 === $code) ? 1 : $code);
-	}
-	return $output;
-}
-
-function exitWithMessage(string $message, int $code = 0): void
-{
-	echo $message;
-	echo PHP_EOL;
-	exit($code);
-}
-
-function message(string $message, string $mark = '✓'): void
-{
-	echo sprintf(' %s ' . $message, $mark);
-	echo PHP_EOL;
-}
-
-// Declare variables used by script below
+$delay = 10;
 $repository = pathinfo(trim(shell_exec('pwd')), PATHINFO_FILENAME);
 $repositoryAddress = sprintf('https://github.com/FluidTYPO3/%s.git', $repository);
-$delay = 10;
-$version = $argv[1];
-$stability = isset($argv[2]) ? $argv[2] : 'stable';
-if (empty($version)) {
-    exitWithMessage('Command requires version as first argument', 1);
-}
-$stabilities = ['stable', 'beta', 'alpha', 'experimental', 'obsolete'];
-if (!in_array($stability, $stabilities)) {
-    exitWithMessage(sprintf('Provided stability "%s" is not valid. Valid values: ' . implode(', ', $stabilities), $stability), 2);
-}
-if (!file_exists('composer.lock')) {
-    exitWithMessage('Please run "composer install" before you begin, to ensure you have all release utilities installed in the right versions', 4);
-}
+$dry = in_array('dry', $argv, true);
+$version = determineVersionFromArguments($argv);
+$stability =  determineStabilityFromArguments($argv);
 
-message('Starting release of ' . $repository, '·');
+message('Will perform release: ' . $repository . ' :: ' . $version . ' :: ' . $stability);
+
 echo ' · ' . sprintf('Delaying for %s seconds. If you wish to abort, NOW is the time to press CTRL+C: ', $delay);
 while (0 < $delay && -- $delay) {
 	echo $delay . '..';
@@ -104,12 +63,12 @@ if (file_exists('phpunit.xml.dist')) {
 if (file_exists(sprintf('Documentation/Changelog/%s.md', $version))) {
     message(sprintf('Change log for version %s already exists - good!', $version));
 } else {
-    commandOrFail('./vendor/bin/changelog ' . $version);
+    commandOrFail(__DIR__ . '/changelog ' . $version . ($dry ? ' dry' : ''));
     commandOrFail(sprintf('git add Documentation/Changelog/%s.md CHANGELOG.md', $version));
     commandOrFail(sprintf('git commit -m "[TASK] Create change log for %s"', $version));
     message(sprintf('Main change log updated. Change log was created for %s (%s): Documentation/Changelog/%s.md', $version, $stability, $version));
 }
-commandOrFail('./vendor/bin/setversion ' . $version . ' ' . $stability);
+commandOrFail(__DIR__ . '/setversion ' . $version . ' ' . $stability);
 commandOrFail(sprintf('git commit -a -m "[TER] %s"', $version));
 message(sprintf('Version was updated to %s (%s)', $version, $stability));
 

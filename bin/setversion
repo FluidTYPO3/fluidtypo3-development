@@ -1,74 +1,16 @@
 #!/usr/bin/env php
 <?php
 
-class Versioner
-{
-    public const PARAMETER_VERSION = 'version';
-    public const PARAMETER_STABILITY = 'state';
-    public const FILENAME_EXTENSION_CONFIGURATION = 'ext_emconf.php';
-    public const STABILITY_STABLE = 'stable';
-    public const STABILITY_BETA = 'beta';
-    public const STABILITY_ALPHA = 'alpha';
-    public const STABILITY_EXPERIMENTAL = 'experimental';
-    public const STABILITY_OBSOLETE = 'obsolete';
-
-    public function write(string $directory, string $version, string $stability = self::STABILITY_STABLE): bool
-    {
-        $extensionConfigurationFilename = $this->getExtensionConfigurationFilename($directory);
-
-        // Remove v prefix for version tags
-        $version = str_replace('v', '', $version);
-
-        if (!$this->writeExtensionConfigurationFile($extensionConfigurationFilename, $version, $stability)) {
-            throw new \RuntimeException(
-                'Could not write ' . $extensionConfigurationFilename . ' - please check permissions'
-            );
-        }
-        return true;
-    }
-
-    protected function getExtensionConfigurationFilename(string $directory): string
-    {
-        return rtrim($directory, '/') . '/' . self::FILENAME_EXTENSION_CONFIGURATION;
-    }
-
-    protected function readExtensionConfigurationFile(string $filename): array
-    {
-        if (!file_exists($filename)) {
-            throw new \RuntimeException('Extension configuration file ' . $filename . ' does not exist');
-        }
-        include $filename;
-        return $EM_CONF;
-    }
-
-    protected function writeExtensionConfigurationFile(string $filename, string $version, string $stability): bool
-    {
-        $configuration = $this->readExtensionConfigurationFile($filename);
-        $extensionKey = key($configuration);
-        $configuration[$extensionKey][self::PARAMETER_VERSION] = $version;
-        $configuration[$extensionKey][self::PARAMETER_STABILITY] = $stability;
-        $contents = '<' . '?php' . PHP_EOL . '$EM_CONF[\'' . $extensionKey . '\'] = ' . var_export($configuration[$extensionKey], true) . ';' . PHP_EOL;
-        return file_put_contents($filename, $contents);
-    }
-}
+require __DIR__ . '/../src/functions.php';
 
 if (4 < count($argv)) {
     die('Set Version requires no more than three parameters: version, stability and optional directory' . PHP_EOL);
 }
 
-$stability = 'stable';
+$stability = Versioner::STABILITY_STABLE;
 $directory = trim(shell_exec('pwd'));
-if (4 === count($argv)) {
-    [, $version, $stability, $directory] = $argv;
-} elseif (3 === count($argv)) {
-    [, $version, $stability] = $argv;
-} elseif (2 === count($argv)) {
-    [, $version] = $argv;
-}
-
-if (empty($version)) {
-    die('Version is a required parameter' . PHP_EOL);
-}
+$version = determineVersionFromArguments($argv);
+$stability = determineStabilityFromArguments($argv);
 
 $validStabilities = [
     Versioner::STABILITY_STABLE,
