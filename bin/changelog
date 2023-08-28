@@ -30,10 +30,11 @@ $version = determineVersionFromArguments($argv);
             $firstFourty = fread($fp, 40);
             fclose($fp);
 
-            $matches = [];
-            preg_match('/\\(' . $dateFormatMatch . '\\)/', $firstFourty, $matches);
-            $dateStamp = trim($matches[0], '()');
-            $created = strtotime($dateStamp);
+            #$matches = [];
+            #preg_match('/\\(' . $dateFormatMatch . '\\)/', $firstFourty, $matches);
+            #$dateStamp = trim($matches[0], '()');
+            #$created = strtotime($dateStamp);
+            $created = filectime($existingFile) + 60;
 
             if ($created > $since) {
                 $since = $created;
@@ -66,7 +67,7 @@ $until = date('Y/m/d H:i:s');
 
 $lines = commandOrFail(
     sprintf(
-        'git log --since="%s" --abbrev-commit --pretty=\'%%ad %%s (Commit %%h by %%an)\' --date=short | egrep \'(\[FEATURE|BUGFIX|REMOVAL\])+\' 2> /dev/null',
+        'TZ=UTC0 git log --since="%s" --abbrev-commit --pretty=\'%%ad %%s (Commit %%h by %%an)\' --date=short | egrep \'(\[FEATURE|BUGFIX|REMOVAL\])+\' 2> /dev/null',
         $since,
         $until
     )

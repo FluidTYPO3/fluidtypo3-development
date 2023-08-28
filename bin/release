@@ -8,7 +8,7 @@ define('TARGET_BRANCH', 'master');
 
 $delay = 10;
 $repository = pathinfo(trim(shell_exec('pwd')), PATHINFO_FILENAME);
-$repositoryAddress = sprintf('https://github.com/FluidTYPO3/%s.git', $repository);
+$repositoryAddress = sprintf('ssh://git@github.com/FluidTYPO3/%s.git', $repository);
 $dry = in_array('dry', $argv, true);
 $version = determineVersionFromArguments($argv);
 $stability =  determineStabilityFromArguments($argv);
@@ -87,7 +87,7 @@ commandOrFail('git checkout ' . SOURCE_BRANCH .' -q');
 commandOrFail('git pull ' . $repositoryAddress . ' ' . SOURCE_BRANCH .' -q');
 commandOrFail('git merge --no-ff -s recursive -X theirs ' . TARGET_BRANCH);
 if ($stability !== 'beta') {
-    commandOrFail('./vendor/bin/setversion ' . $version . ' beta');
+    commandOrFail(__DIR__ . '/setversion ' . $version . ' beta');
     commandOrFail('git commit -a -m "[TASK] Set beta stability"');
 }
 commandOrFail('git push origin ' . SOURCE_BRANCH .' -q');

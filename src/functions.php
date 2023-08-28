@@ -13,6 +13,8 @@ function determineVersionFromArguments(array $arguments): string
         if (in_array($argument, $versions, true)) {
             // Version is a shortcut, infer the actual version from current version + bump type:
             return inferVersion($currentVersion, $argument);
+        } elseif (preg_match('/\\d+\\.\\d+\\.\\d+/', $argument)) {
+            return $argument;
         }
     }
 
