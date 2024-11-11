@@ -26,10 +26,6 @@ $version = determineVersionFromArguments($argv);
     if (!$declaredSince) {
         $since = 0;
         foreach ($existingFiles as $existingFile) {
-            $fp = fopen($existingFile, 'r');
-            $firstFourty = fread($fp, 40);
-            fclose($fp);
-
             $created = filectime($existingFile) + 60;
 
             if ($created > $since) {
