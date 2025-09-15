@@ -56,7 +56,7 @@ if (file_exists($changelogFile)) {
 }
 
 
-$since = date('Y/m/d H:i:s', $since);
+$since = date('Y/m/d H:i:s', $since - 60);
 $until = date('Y/m/d H:i:s');
 
 $lines = commandOrFail(
